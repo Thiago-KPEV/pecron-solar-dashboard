@@ -320,7 +320,7 @@ Query parameters, all optional:
 |---|---|---|
 | `theme` | `light`, `dark` | Force a theme. Omitted: follows the visitor's system setting. |
 | `bg` | `transparent` | Let your page's background show through. |
-| `accent` | six hex digits, e.g. `2E7D5B` (no `#`) | Accent colour. Default: `EMBED_ACCENT` in `wrangler.toml`. |
+| `accent` | six hex digits, e.g. `2E7D5B` (no `#`) | Accent color. Default: `EMBED_ACCENT` in `wrangler.toml`. |
 | `font` | a Google Fonts family name, e.g. `Inter` | Use your site's typeface. |
 
 For example: `/embed?theme=dark&bg=transparent&accent=E2622C&font=Inter`.

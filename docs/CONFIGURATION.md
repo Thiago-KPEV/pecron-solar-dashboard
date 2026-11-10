@@ -22,7 +22,7 @@ malformed value falls back to the default shown below.
 | `SITE_NAME` | `My Solar Battery` | Name shown in page headers and titles, the embed heading, and alert email subjects. |
 | `DEVICE_NAME` | `Pecron power station` (template sets `Pecron F3000LFP`) | Shown in the dashboard footer. |
 | `SITE_TIMEZONE` | `UTC` (template sets `America/New_York`) | IANA timezone name, e.g. `Europe/Berlin`. Decides how timestamps are stored, where each day starts for daily totals, and the times used by the depletion alert. An invalid name is ignored with a log line. Set it **before** collecting much data: changing it later does not re-stamp existing rows. |
-| `EMBED_ACCENT` | `#2E7D5B` | Default accent colour of `/embed`, as `#RRGGBB`. A host page can override it with `?accent=`. |
+| `EMBED_ACCENT` | `#2E7D5B` | Default accent color of `/embed`, as `#RRGGBB`. A host page can override it with `?accent=`. |
 
 ### Pecron connection
 
@@ -143,5 +143,5 @@ not need to edit the HTML for a normal install:
 | `__EMBED_ACCENT__` | `EMBED_ACCENT` |
 | `__PSH_NORM__`, `__CO2_KG_PER_KWH__` | the matching `site.config.js` fields, or empty |
 
-Only these exact names are replaced. To change colours beyond the embed accent, edit
+Only these exact names are replaced. To change colors beyond the embed accent, edit
 the CSS custom properties (`--brand` and friends) at the top of each page.

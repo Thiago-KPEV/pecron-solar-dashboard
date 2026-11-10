@@ -86,7 +86,7 @@ bearer token: `Authorization: Bearer <token>`.
 | GET | `/api/daily` | none | Per-day rollups for the last `?days=` (default 7, max 90): harvest, consumed (AC/DC), stored change, overhead (two estimates), SoC range, gaps. `?source=` | 300 s |
 | GET | `/api/summary` | none | Lifetime and today totals, best day, peak sun hours, self-sufficiency, grid energy avoided and value, cycles, days since grid charge, mile equivalents, `pevs`, `assumptions` (last 90 days) | 600 s |
 | GET | `/api/hourly` | none | Hour x day solar grid for the heatmap, `?days=` (default 30, max 90) | 600 s |
-| GET | `/api/health-trend` | none | Mean resting voltage per 5% charge bucket per day, for pack-ageing | 600 s |
+| GET | `/api/health-trend` | none | Mean resting voltage per 5% charge bucket per day, for pack-aging | 600 s |
 | GET | `/api/control-log` | none | Last 100 control attempts, including refusals | none |
 | POST | `/api/ingest` | `INGEST_TOKEN` | Accepts `{records:[...]}` (or one record) from the LAN agent; returns `accepted`, `stored`, `skippedRollups` | none |
 | POST | `/api/poll` | `INGEST_TOKEN` | Polls the cloud now and evaluates alerts, same as one cron run | none |

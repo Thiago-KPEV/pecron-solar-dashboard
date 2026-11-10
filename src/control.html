@@ -236,7 +236,7 @@ async function send(code, value, confirmText){
     const j = await r.json();
     if (r.status === 401){
       sessionStorage.removeItem(KEY);       // wrong token: make them re-enter
-      toast(j.detail || "Not authorised — token rejected.");
+      toast(j.detail || "Not authorized — token rejected.");
     } else if (r.status === 403){
       toast(j.reason || "Refused.", 8000);
     } else if (!r.ok){

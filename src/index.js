@@ -1005,7 +1005,7 @@ async function evaluateFault(env, last) {
   const code = last.fault_code;
   if (code !== null && code !== undefined && state === "ok") {
     await latch(env, "alert_fault_state", "faulted", `${SITE_NAME}: DEVICE FAULT`,
-      `Pecron reports fault code ${code} — ${FAULTS[code] || "unrecognised code"}.\n` +
+      `Pecron reports fault code ${code} — ${FAULTS[code] || "unrecognized code"}.\n` +
       `Reading at ${last.captured_at}, pack ${last.soc}%.\n\n` +
       `Faults are rare and usually mean the unit has protected itself. Check it in person.`);
   } else if ((code === null || code === undefined) && state === "faulted") {
@@ -1255,7 +1255,7 @@ export default {
     }
 
     // Optional feed filter shared by every read endpoint. Absent means "both",
-    // so callers that never pass it are unaffected. An unrecognised value is rejected rather than ignored:
+    // so callers that never pass it are unaffected. An unrecognized value is rejected rather than ignored:
     // silently returning everything would look exactly like a working filter.
     const source = url.searchParams.get("source");
     if (source !== null && source !== "cloud" && source !== "lan") {
@@ -1524,7 +1524,7 @@ export default {
             ? Math.round((lifetimeMiles / COMMUTE_MILES) * 10) / 10
             : null,
 
-          // Peak sun hours - harvest normalised by panel rating. The standard
+          // Peak sun hours - harvest normalized by panel rating. The standard
           // solar yardstick, and the one figure that makes this array
           // comparable to any other.
           peakSunHoursToday: psh(todayWh),
@@ -1621,7 +1621,7 @@ export default {
 
       if (path === "/api/health-trend") {
         /*
-         * Pack ageing shows up as resting voltage drifting at a comparable
+         * Pack aging shows up as resting voltage drifting at a comparable
          * state of charge. Both conditions matter: voltage under load says
          * nothing, and voltage at 100% says nothing either, so restrict to
          * near-idle current in a mid-charge band and let the weekly mean move.

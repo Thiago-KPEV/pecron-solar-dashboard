@@ -393,7 +393,7 @@ function renderLatest(d, health){
    *
    * The firmware populates remain_time and remain_charging_time separately and
    * only one is meaningful at a time — but WE ONLY CAPTURE remain_time, the
-   * DISCHARGE figure. Labelling it "to full" while charging would present a
+   * DISCHARGE figure. Labeling it "to full" while charging would present a
    * discharge estimate as a charge estimate, so it is shown only while
    * discharging; charging says so plainly instead.
    *
@@ -617,9 +617,9 @@ function renderEfficiency(s){
   $("#e-cyc-n").textContent = `${s.equivalentFullCycles ?? "—"} of ${fmt(s.ratedCycles)} rated cycles`;
 }
 
-/* Hour x day grid. Colour is opacity over the solar hue rather than a rainbow
-   ramp: a single-hue scale stays readable for colour-blind viewers and in
-   greyscale, and the shading edges are what matter here, not fine gradations. */
+/* Hour x day grid. Color is opacity over the solar hue rather than a rainbow
+   ramp: a single-hue scale stays readable for color-blind viewers and in
+   grayscale, and the shading edges are what matter here, not fine gradations. */
 function renderHeatmap(h){
   const box = $("#heatmap");
   if (!h.cells?.length){ box.innerHTML = `<p class="cap">No generation recorded yet.</p>`; return; }

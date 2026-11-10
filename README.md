@@ -12,7 +12,7 @@ needs attention.
 It was built against an **F3000LFP**. Other Pecron models that use the same cloud and
 property names will probably work, but have not been tested.
 
-No computer at home needs to stay on: collection runs in Cloudflare's data centres.
+No computer at home needs to stay on: collection runs in Cloudflare's data centers.
 
 ## Features
 
@@ -21,7 +21,7 @@ No computer at home needs to stay on: collection runs in Cloudflare's data centr
   table, an hour-by-day solar heatmap, pack-health drift, value of the energy
   generated, and "miles on sunlight" for any e-bikes or other vehicles you charge.
 - **Embeddable widget** (`/embed`): a compact public panel for your own site, with
-  theme, background, accent colour and font controlled by query parameters, and
+  theme, background, accent color and font controlled by query parameters, and
   automatic iframe height.
 - **Device control** (`/control`): turn AC output on or off, toggle ECO standby, set
   the AC charge speed. Every attempt is logged, including refusals.
@@ -91,7 +91,7 @@ from zero, including where to find each value.
 | `src/monitor.html` | `/`: the full dashboard |
 | `src/embed.html` | `/embed`: the embeddable widget |
 | `src/control.html` | `/control`: token-gated device control |
-| `src/mockups.html` | `/mockups`: ideas for further metrics, labelled live / projected / needs hardware |
+| `src/mockups.html` | `/mockups`: ideas for further metrics, labeled live / projected / needs hardware |
 | `schema.sql` | D1 schema |
 | `wrangler.toml` | Worker config and the `[vars]` settings |
 | `set-secrets.ps1`, `rotate-tokens.ps1` | Windows helpers to set secrets and rotate tokens |

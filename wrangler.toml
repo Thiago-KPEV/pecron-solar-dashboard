@@ -75,7 +75,7 @@ GRID_RATE_VERIFIED = "false"
 # unknown; a grid charge seen in the data always takes precedence when newer.
 LAST_GRID_CHARGE = ""
 
-# Default accent colour (hex) for the /embed widget. A host page can still
+# Default accent color (hex) for the /embed widget. A host page can still
 # override it per embed with ?accent=RRGGBB.
 EMBED_ACCENT = "#2E7D5B"
 

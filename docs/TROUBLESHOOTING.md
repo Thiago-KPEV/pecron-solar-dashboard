@@ -21,7 +21,7 @@ the dashboard says **Offline**, and the "telemetry stopped" email may mention th
 cloud is repeating the same reading.
 
 **What it means:** the unit has **stopped reporting to Pecron's cloud**, but the cloud
-keeps answering with its last values. The Worker recognises this (identical readings,
+keeps answering with its last values. The Worker recognizes this (identical readings,
 down to the millivolt, several polls in a row) and stops recording the repeats, so your
 history shows an honest gap instead of invented data. The Pecron app will show the same
 frozen numbers.
