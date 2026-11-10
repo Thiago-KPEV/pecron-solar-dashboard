@@ -147,14 +147,23 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
 
-    <div class="locked">
+    <div class="row" id="dc-row" hidden>
+      <div class="who"><b>DC output</b><span id="dc-state">—</span></div>
+      <div class="act">
+        <button class="btn" data-code="dc_switch_hm" data-value="true">Turn on</button>
+        <button class="btn danger" data-code="dc_switch_hm" data-value="false" data-confirm="Turn DC output off? Anything on the DC ports loses power. If your router or modem runs off DC, this page will go offline and you will have to switch it back on at the unit.">Turn off</button>
+      </div>
+    </div>
+
+    <div class="locked" id="dc-locked">
       <b>DC output — locked, deliberately</b>
       <p>
         If a router or other critical network gear runs off the DC output, switching it off
         from here would kill the internet connection, this page, and any way of switching it
         back on — recovery would mean going to the unit in person. The Worker refuses this
         property outright, so it cannot be done by hand either. Do it at the unit if it is
-        genuinely needed.
+        genuinely needed. If none of your network gear runs off DC, the owner can enable
+        DC control with <span class="mono">ALLOW_DC_CONTROL</span> in the Worker's settings.
       </p>
     </div>
   </div>
@@ -203,9 +212,18 @@ async function refresh(){
       `<span class="pill ${on ? "on" : "off"}"><i></i>${on ? onText : offText}</span>`;
     $("#ac-state").innerHTML  = pill(d.ac_switch, "On", "Off") + ` &nbsp;<span class="mono">${d.ac_out_w ?? 0} W</span>`;
     $("#eco-state").innerHTML = pill(d.eco, "Enabled", "Disabled");
+    $("#dc-state").innerHTML  = pill(d.dc_switch, "On", "Off") + ` &nbsp;<span class="mono">${d.dc_out_w ?? 0} W</span>`;
     const age = Math.round((Date.now() - Date.parse(d.captured_at)) / 60000);
     $("#state-cap").textContent = `Device last reported ${isNaN(age) ? "—" : age + " min"} ago · charge ${d.soc}%`;
   }catch(e){ $("#state-cap").textContent = "could not read device state"; }
+
+  try{
+    // Show DC buttons only when the Worker says it will accept them; the
+    // Worker enforces this regardless of what the page shows.
+    const h = await (await fetch("/api/health", {cache:"no-store"})).json();
+    $("#dc-row").hidden = !h.dcControlEnabled;
+    $("#dc-locked").hidden = !!h.dcControlEnabled;
+  }catch(e){ /* keep DC shown as locked */ }
 
   try{
     const l = await (await fetch("/api/control-log", {cache:"no-store"})).json();

@@ -81,6 +81,7 @@ let PANEL_WATTS = 400;                 // array nameplate, for peak-sun-hours
 let GRID_RATE_USD_PER_KWH = 0.30;      // placeholder - set your own
 let GRID_RATE_VERIFIED = false;
 let LAST_GRID_CHARGE = "";             // optional ISO date-time
+let ALLOW_DC_CONTROL = false;          // opt-in; see CONTROL_DENYLIST
 let SITE_TZ = "UTC";
 let WINDOW_OPENS_MIN = 8 * 60 + 45;    // when the panel starts producing
 let WINDOW_CLOSES_MIN = 16 * 60;       // when daytime suppression of depletion alerts ends
@@ -116,6 +117,8 @@ function applyConfig(env) {
   GRID_RATE_USD_PER_KWH = numVar(env.GRID_RATE_USD_PER_KWH, 0.30);
   GRID_RATE_VERIFIED = String(env.GRID_RATE_VERIFIED || "").trim().toLowerCase() === "true";
   LAST_GRID_CHARGE = String(env.LAST_GRID_CHARGE || "").trim();
+  // Exactly "true" and nothing else: a typo or a stray value must leave DC locked.
+  ALLOW_DC_CONTROL = String(env.ALLOW_DC_CONTROL || "").trim().toLowerCase() === "true";
   WINDOW_OPENS_MIN = hhmmToMin(env.SOLAR_WINDOW_OPENS, 8 * 60 + 45);
   WINDOW_CLOSES_MIN = hhmmToMin(env.SOLAR_WINDOW_CLOSES, 16 * 60);
 
@@ -1083,7 +1086,8 @@ async function evaluateDepletion(env, last) {
 /*
  * What may be written, and what may never be.
  *
- * dc_switch_hm is ABSENT ON PURPOSE and must stay that way.
+ * dc_switch_hm is NOT in the allowlist by default. It is refused unless the
+ * owner opts in with ALLOW_DC_CONTROL = "true" in wrangler.toml.
  *
  * A common setup powers the router, modem or other critical network gear from
  * the station's DC output. Switching that output off remotely kills the
@@ -1093,9 +1097,10 @@ async function evaluateDepletion(env, last) {
  *
  * Nothing in Pecron's documentation hints at this - it depends on how each
  * installation is wired - so anyone reading the device's list of writable
- * properties will reasonably assume DC belongs here next to AC. It does not.
- * The refusal lives in the Worker rather than the UI so that a hand-rolled curl
- * cannot do it either.
+ * properties will reasonably assume DC belongs here next to AC. So the safe
+ * choice is the default, and enabling DC is a deliberate, documented step for
+ * installations whose network gear does NOT run off DC. The refusal lives in
+ * the Worker rather than the UI so that a hand-rolled curl cannot do it either.
  */
 const CONTROL_ALLOWLIST = {
   ac_switch_hm: (v) => typeof v === "boolean",
@@ -1108,8 +1113,12 @@ const CONTROL_DENYLIST = {
     "Refused: DC output is never switched remotely. If a router or other " +
     "critical gear runs off it, switching it off would sever internet, " +
     "telemetry and any remote route back in. Do this at the unit if it is " +
-    "genuinely needed.",
+    "genuinely needed. (Owners whose network gear does not run off DC can " +
+    "enable it with ALLOW_DC_CONTROL = \"true\" in wrangler.toml.)",
 };
+
+// Only consulted when ALLOW_DC_CONTROL is on.
+const DC_CONTROL = { dc_switch_hm: (v) => typeof v === "boolean" };
 
 async function logControl(env, code, value, result, detail) {
   try {
@@ -1319,6 +1328,8 @@ export default {
                 note: "Pecron's cloud is answering with the same reading every poll: the unit has stopped reporting to it. Repeats are not stored." }
             : null,
           lastError: err?.v ?? null,
+          // Lets /control show the DC buttons only when the Worker will accept them.
+          dcControlEnabled: ALLOW_DC_CONTROL,
         });
       }
 
@@ -1714,15 +1725,18 @@ export default {
           }, 401);
         }
 
-        if (CONTROL_DENYLIST[code]) {
+        const dcEnabled = ALLOW_DC_CONTROL && Object.hasOwn(DC_CONTROL, code);
+        if (Object.hasOwn(CONTROL_DENYLIST, code) && !dcEnabled) {
           await logControl(env, code, value, "refused", CONTROL_DENYLIST[code]);
           return json({ error: "refused", reason: CONTROL_DENYLIST[code] }, 403);
         }
 
-        const validate = CONTROL_ALLOWLIST[code];
+        const validate = dcEnabled ? DC_CONTROL[code]
+          : Object.hasOwn(CONTROL_ALLOWLIST, code) ? CONTROL_ALLOWLIST[code] : null;
         if (!validate) {
           await logControl(env, code ?? "(none)", value, "refused", "not in allowlist");
-          return json({ error: `'${code}' is not a controllable property`, allowed: Object.keys(CONTROL_ALLOWLIST) }, 400);
+          const allowed = Object.keys(CONTROL_ALLOWLIST).concat(ALLOW_DC_CONTROL ? Object.keys(DC_CONTROL) : []);
+          return json({ error: `'${code}' is not a controllable property`, allowed }, 400);
         }
         if (!validate(value)) {
           await logControl(env, code, value, "refused", "value failed validation");

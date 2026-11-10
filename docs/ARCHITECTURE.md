@@ -80,7 +80,7 @@ bearer token: `Authorization: Bearer <token>`.
 
 | Method | Path | Auth | Description | Cache |
 |---|---|---|---|---|
-| GET | `/api/health` | none | Config and freshness: `lastSampleAt`, `lastSampleAgeMinutes`, `stale` (over 20 min), `sourcesActive`, `localPolling`, `cloudRepeating`, `lastError` | none |
+| GET | `/api/health` | none | Config and freshness: `lastSampleAt`, `lastSampleAgeMinutes`, `stale` (over 20 min), `sourcesActive`, `localPolling`, `cloudRepeating`, `lastError`, `dcControlEnabled` | none |
 | GET | `/api/latest` | none | Most recent row, plus `powerWatts` (V x A; positive = charging) and `capacityWattHours`. `?source=` | 60 s |
 | GET | `/api/history` | none | Rows for the last `?hours=` (default 24, max 744), or one `?date=YYYY-MM-DD`. `?source=` | 60 s |
 | GET | `/api/daily` | none | Per-day rollups for the last `?days=` (default 7, max 90): harvest, consumed (AC/DC), stored change, overhead (two estimates), SoC range, gaps. `?source=` | 300 s |
@@ -90,7 +90,7 @@ bearer token: `Authorization: Bearer <token>`.
 | GET | `/api/control-log` | none | Last 100 control attempts, including refusals | none |
 | POST | `/api/ingest` | `INGEST_TOKEN` | Accepts `{records:[...]}` (or one record) from the LAN agent; returns `accepted`, `stored`, `skippedRollups` | none |
 | POST | `/api/poll` | `INGEST_TOKEN` | Polls the cloud now and evaluates alerts, same as one cron run | none |
-| POST | `/api/control` | `CONTROL_TOKEN` | Body `{code, value}`. Allowed: `ac_switch_hm` (bool), `eco_onoff_us` (bool), `ac_charging_power_ios` (integer 0-10, x10%). `dc_switch_hm` is always refused with 403. | none |
+| POST | `/api/control` | `CONTROL_TOKEN` | Body `{code, value}`. Allowed: `ac_switch_hm` (bool), `eco_onoff_us` (bool), `ac_charging_power_ios` (integer 0-10, x10%). `dc_switch_hm` (bool) only when `ALLOW_DC_CONTROL` is `"true"`; otherwise refused with 403. | none |
 | POST | `/api/test-alert` | `CONTROL_TOKEN` | Sends a test email and reports which settings are missing | none |
 | OPTIONS | any | none | CORS preflight | - |
 
@@ -100,9 +100,11 @@ unset, `/api/control` and `/api/test-alert` refuse everyone.
 
 ### Control safety
 
-- **`dc_switch_hm` is refused** with HTTP 403 and logged as `refused`. If a router or
-  other critical gear runs off the DC output, switching it remotely would cut the only
-  way back in.
+- **`dc_switch_hm` is refused by default** with HTTP 403 and logged as `refused`. If a
+  router or other critical gear runs off the DC output, switching it remotely would cut
+  the only way back in. Installations whose network does not run off DC can opt in with
+  `ALLOW_DC_CONTROL = "true"`; `/api/health` reports the setting as `dcControlEnabled`,
+  and `/control` shows the DC buttons only when it is on.
 - **Fail closed.** A missing `CONTROL_TOKEN` is treated exactly like a wrong one.
 - Every attempt (applied, refused, error, unauthorized) is written to `control_log`.
 - The device confirms changes asynchronously; its reported state can take a few

@@ -97,6 +97,13 @@ ALERT_FROM_NAME = ""            # optional sender name; defaults to "<SITE_NAME>
 # internet. Never extend the gate to /embed or the API reads it calls.
 # MONITOR_GATE = "on"
 
+# Remote DC output switching. OFF unless this is exactly "true".
+# Leave it off if your router, modem or any network gear runs from the
+# station's DC output: switching DC off remotely would take the internet down
+# with it, along with this dashboard and every way to switch it back on.
+# Only turn it on if your network is powered some other way.
+ALLOW_DC_CONTROL = "false"
+
 # ---------------------------------------------------------------------------
 # Secrets - set with `npx wrangler secret put NAME`, never in this file:
 #   PECRON_EMAIL, PECRON_PASSWORD     your Pecron app login

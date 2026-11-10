@@ -76,8 +76,9 @@ no network to join while you pair it.
 4. Once readings appear in the app (and in `/api/health`), move the router back to the
    station if you want.
 
-This is also why the Worker refuses to switch the DC output remotely: if the router
-runs from DC, switching it off remotely strands you with no way back in.
+This is also why the Worker refuses to switch the DC output remotely by default: if
+the router runs from DC, switching it off remotely strands you with no way back in.
+Only set `ALLOW_DC_CONTROL = "true"` if your network is powered some other way.
 
 ---
 

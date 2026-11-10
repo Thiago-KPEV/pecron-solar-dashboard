@@ -80,7 +80,7 @@ if ($Control) {
     Set-WorkerSecret "CONTROL_TOKEN" $t
     $existing["CONTROL_TOKEN"] = $t
     Write-Host "  CONTROL_TOKEN set - device control is now possible with the new value" -ForegroundColor Green
-    Write-Host "  (dc_switch_hm stays refused regardless)" -ForegroundColor Yellow
+    Write-Host "  (DC output stays locked unless ALLOW_DC_CONTROL is true in wrangler.toml)" -ForegroundColor Yellow
 }
 
 if ($Monitor) {

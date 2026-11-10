@@ -25,7 +25,8 @@ No computer at home needs to stay on: collection runs in Cloudflare's data cente
   automatic iframe height.
 - **Device control** (`/control`): turn AC output on or off, toggle ECO standby, set
   the AC charge speed. Every attempt is logged, including refusals.
-  **DC output can never be switched remotely** (see the safety note below).
+  **DC output is locked by default** and can be unlocked with one setting if your
+  network gear doesn't run off it (see the safety note below).
 - **Email alerts** through Mailgun: telemetry has stopped, the unit reports a fault
   code, or the battery will not last until the sun is back on the panel. Alerts go
   out once when a problem starts and once when it clears, never on repeat.
@@ -99,9 +100,8 @@ from zero, including where to find each value.
 
 ## Safety note: DC output
 
-The Worker **refuses** any request to switch the DC output (`dc_switch_hm`) with
-HTTP 403, and the control page shows it as locked. This is deliberate and should stay
-that way.
+By default the Worker **refuses** any request to switch the DC output (`dc_switch_hm`)
+with HTTP 403, and the control page shows it as locked.
 
 Many setups run the router, modem or other network gear from the station's DC
 output. If that output is switched off remotely, the internet connection goes with
@@ -109,6 +109,11 @@ it, and so does every way of switching it back on: this dashboard, the Pecron ap
 cloud connection, everything. The only fix is to go to the unit in person. The
 refusal lives in the Worker, not only in the page, so a hand-written request cannot
 do it either.
+
+**If none of your network gear runs off DC**, you can allow DC switching by setting
+`ALLOW_DC_CONTROL = "true"` in `wrangler.toml` and redeploying. The control page then
+shows DC on/off buttons, with a warning before turning it off. Any other value keeps
+DC locked.
 
 Control access also **fails closed**: if `CONTROL_TOKEN` is not set, every control
 request is refused.

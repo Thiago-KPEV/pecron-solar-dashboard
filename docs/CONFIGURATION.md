@@ -66,6 +66,7 @@ Email alerts are only sent when `MAILGUN_API_KEY` (secret), `MAILGUN_DOMAIN` and
 | Name | Default | Description |
 |---|---|---|
 | `MONITOR_GATE` | not set | Set to `"on"` to require the `MONITOR_TOKEN` secret before showing `/` and `/mockups`. If `on` while `MONITOR_TOKEN` is missing, those pages refuse with a clear error rather than silently reopening. `/embed`, `/control` and the API are never gated by this. |
+| `ALLOW_DC_CONTROL` | `"false"` | Set to exactly `"true"` to allow switching the DC output from `/control` and `POST /api/control`. **Leave it off if your router, modem or other network gear runs from the station's DC output**: switching DC off remotely would cut the internet, the dashboard and every way back in, and recovery means going to the unit. Any other value keeps DC locked. |
 
 ---
 
