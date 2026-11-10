@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>__SITE_NAME__ · Battery Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --brand:#2E7D5B; --brand-deep:#1F5A41; --accent:#E2622C;
+  --ground:#F7F5F0; --card:#FFFFFF; --card-2:#FBFAF7;
+  --line:#E4DFD6; --line-soft:#EFEBE3;
+  --ink:#191D1D; --ink-2:#4C5654; --ink-3:#79817F;
+  --ok:#1B7F4B; --ok-bg:rgba(27,127,75,.10);
+  --idle:#79817F; --idle-bg:rgba(121,129,127,.12);
+  --bad:#B3261E; --bad-bg:rgba(179,38,30,.10);
+  --warn:#B06200; --warn-bg:rgba(176,98,0,.10);
+  --shadow:0 1px 2px rgba(25,29,29,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --brand:#3E9A70; --brand-deep:#12382A; --accent:#F0784A;
+  --ground:#121615; --card:#1A1F1E; --card-2:#161B1A;
+  --line:#2C3433; --line-soft:#242B2A;
+  --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+  --ok:#4FB07A; --ok-bg:rgba(79,176,122,.14);
+  --idle:#7E8886; --idle-bg:rgba(126,136,134,.16);
+  --bad:#E4685E; --bad-bg:rgba(228,104,94,.14);
+  --warn:#C97A1A; --warn-bg:rgba(201,122,26,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}}
+:root[data-theme="dark"]{
+  --brand:#3E9A70; --brand-deep:#12382A; --accent:#F0784A;
+  --ground:#121615; --card:#1A1F1E; --card-2:#161B1A;
+  --line:#2C3433; --line-soft:#242B2A;
+  --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+  --ok:#4FB07A; --ok-bg:rgba(79,176,122,.14);
+  --idle:#7E8886; --idle-bg:rgba(126,136,134,.16);
+  --bad:#E4685E; --bad-bg:rgba(228,104,94,.14);
+  --warn:#C97A1A; --warn-bg:rgba(201,122,26,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Figtree,"Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+.bar{background:var(--brand-deep);color:#fff;padding:11px 20px;display:flex;align-items:center;gap:13px}
+.logo{border:2px solid #fff;border-radius:7px;padding:3px 9px;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.bar .t{font-size:13px;opacity:.8}
+.bar a{margin-left:auto;color:#fff;opacity:.85;font-size:13px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4)}
+.wrap{max-width:760px;margin:0 auto;padding:20px 20px 60px}
+h2{font-size:15px;font-weight:700;margin:0}
+.cap{font-size:12.5px;color:var(--ink-3);margin:2px 0 0}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:24px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);padding:15px 17px}
+.card+.card{margin-top:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:650;border:1px solid transparent}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.on{color:var(--ok);background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+.pill.off{color:var(--idle);background:var(--idle-bg);border-color:color-mix(in srgb,var(--idle) 30%,transparent)}
+.row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.row:last-child{border-bottom:0}
+.row .who{flex:1 1 220px;min-width:200px}
+.row .who b{display:block;font-size:14px;font-weight:650}
+.row .who span{font-size:12.5px;color:var(--ink-3)}
+.row .act{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  border-radius:8px;padding:7px 14px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--ink-3);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+select{font:inherit;font-size:13px;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.locked{background:var(--bad-bg);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent);
+  border-left:3px solid var(--bad);border-radius:9px;padding:12px 15px;margin-top:12px}
+.locked b{color:var(--bad);font-size:13.5px}
+.locked p{margin:4px 0 0;font-size:13px;color:var(--ink-2)}
+.note{background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);
+  border-radius:9px;padding:11px 14px;font-size:13px;color:var(--ink-2);margin-bottom:14px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--card);
+  border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 22px rgba(0,0,0,.2);
+  padding:11px 16px;font-size:13.5px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+#toast.show{opacity:1}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:700;padding:6px 10px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);color:var(--ink-2);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+.r-applied{color:var(--ok);font-weight:650}
+.r-refused,.r-unauthorized{color:var(--bad);font-weight:650}
+.r-error{color:var(--warn);font-weight:650}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="logo">__SITE_NAME__</span>
+  <span class="t">Battery Control</span>
+  <a href="/">← Monitor</a>
+</div>
+
+<div class="wrap">
+
+  <div class="note" id="cadence">
+    Changes are sent through Pecron's cloud and confirmed asynchronously — the device's
+    reported state can take a few minutes to catch up. Buttons show what the device
+    <em>last reported</em>, not what was last requested.
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:4px">
+      <div><h2>Outputs</h2><p class="cap" id="state-cap">—</p></div>
+      <button class="btn" id="refresh" style="margin-left:auto">Refresh</button>
+    </div>
+
+    <div class="row">
+      <div class="who"><b>AC output</b><span id="ac-state">—</span></div>
+      <div class="act">
+        <button class="btn" data-code="ac_switch_hm" data-value="true">Turn on</button>
+        <button class="btn danger" data-code="ac_switch_hm" data-value="false" data-confirm="Turn AC output off? Anything plugged into the AC sockets loses power. The DC output is not affected.">Turn off</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="who"><b>ECO standby</b><span id="eco-state">—</span></div>
+      <div class="act">
+        <button class="btn" data-code="eco_onoff_us" data-value="true">Enable</button>
+        <button class="btn" data-code="eco_onoff_us" data-value="false">Disable</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="who"><b>AC charge speed</b><span>Only applies when charging from AC (wall) input</span></div>
+      <div class="act">
+        <select id="speed">
+          <option value="0">0%</option><option value="1">10%</option><option value="2">20%</option>
+          <option value="3">30%</option><option value="4">40%</option><option value="5">50%</option>
+          <option value="6">60%</option><option value="7">70%</option><option value="8">80%</option>
+          <option value="9">90%</option><option value="10">100%</option>
+        </select>
+        <button class="btn" id="speed-apply">Apply</button>
+      </div>
+    </div>
+
+    <div class="locked">
+      <b>DC output — locked, deliberately</b>
+      <p>
+        If a router or other critical network gear runs off the DC output, switching it off
+        from here would kill the internet connection, this page, and any way of switching it
+        back on — recovery would mean going to the unit in person. The Worker refuses this
+        property outright, so it cannot be done by hand either. Do it at the unit if it is
+        genuinely needed.
+      </p>
+    </div>
+  </div>
+
+  <div class="eyebrow">Recent activity</div>
+  <div class="card">
+    <div style="margin-bottom:8px"><h2>Control log</h2><p class="cap">Every attempt, including refusals.</p></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>When</th><th>Property</th><th>Value</th><th>Result</th><th>Detail</th></tr></thead>
+        <tbody id="log"><tr><td colspan="5" style="color:var(--ink-3)">loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+const $ = s => document.querySelector(s);
+
+/* sessionStorage, not localStorage: the token dies with the tab rather than
+   sitting on a shared machine indefinitely. */
+const KEY = "solar-control-token";
+const getToken = () => sessionStorage.getItem(KEY);
+
+function toast(msg, ms = 4200){
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms);
+}
+
+async function ensureToken(){
+  let t = getToken();
+  if (t) return t;
+  t = window.prompt("Control token\n\nRequired to change anything. Reading needs no token.");
+  if (!t) return null;
+  sessionStorage.setItem(KEY, t.trim());
+  return t.trim();
+}
+
+async function refresh(){
+  try{
+    const d = await (await fetch("/api/latest", {cache:"no-store"})).json();
+    const pill = (on, onText, offText) =>
+      `<span class="pill ${on ? "on" : "off"}"><i></i>${on ? onText : offText}</span>`;
+    $("#ac-state").innerHTML  = pill(d.ac_switch, "On", "Off") + ` &nbsp;<span class="mono">${d.ac_out_w ?? 0} W</span>`;
+    $("#eco-state").innerHTML = pill(d.eco, "Enabled", "Disabled");
+    const age = Math.round((Date.now() - Date.parse(d.captured_at)) / 60000);
+    $("#state-cap").textContent = `Device last reported ${isNaN(age) ? "—" : age + " min"} ago · charge ${d.soc}%`;
+  }catch(e){ $("#state-cap").textContent = "could not read device state"; }
+
+  try{
+    const l = await (await fetch("/api/control-log", {cache:"no-store"})).json();
+    $("#log").innerHTML = l.entries.length
+      ? l.entries.map(e => `<tr>
+          <td class="mono">${e.at.replace("T"," ").slice(0,19)}</td>
+          <td class="mono">${e.code}</td>
+          <td class="mono">${e.value}</td>
+          <td class="r-${e.result}">${e.result}</td>
+          <td style="white-space:normal;color:var(--ink-3)">${e.detail ? String(e.detail).slice(0,120) : ""}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="5" style="color:var(--ink-3)">nothing yet</td></tr>`;
+  }catch(e){ /* leave the previous rows in place */ }
+}
+
+async function send(code, value, confirmText){
+  if (confirmText && !window.confirm(confirmText)) return;
+  const token = await ensureToken();
+  if (!token) return;
+
+  document.querySelectorAll("button").forEach(b => b.disabled = true);
+  try{
+    const r = await fetch("/api/control", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ code, value }),
+    });
+    const j = await r.json();
+    if (r.status === 401){
+      sessionStorage.removeItem(KEY);       // wrong token: make them re-enter
+      toast(j.detail || "Not authorised — token rejected.");
+    } else if (r.status === 403){
+      toast(j.reason || "Refused.", 8000);
+    } else if (!r.ok){
+      toast(j.error || `Failed (HTTP ${r.status})`);
+    } else {
+      toast(`Sent ${code} = ${value}. The device may take a few minutes to report it.`, 6000);
+    }
+  }catch(e){ toast("Request failed: " + e.message); }
+  finally{
+    document.querySelectorAll("button").forEach(b => b.disabled = false);
+    setTimeout(refresh, 1500);
+  }
+}
+
+document.querySelectorAll("button[data-code]").forEach(b => {
+  b.addEventListener("click", () =>
+    send(b.dataset.code, b.dataset.value === "true", b.dataset.confirm));
+});
+$("#speed-apply").addEventListener("click", () =>
+  send("ac_charging_power_ios", Number($("#speed").value)));
+$("#refresh").addEventListener("click", refresh);
+
+refresh();
+setInterval(refresh, 60_000);
+</script>
+</body>
+</html>

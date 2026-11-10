@@ -1,0 +1,24 @@
+# Live credentials - never commit.
+.dev.vars
+.dev.vars.*
+.tokens*.txt
+*.dpapi
+config.yaml
+
+# Wrangler state, dependencies and build output.
+.wrangler/
+node_modules/
+dist/
+
+# Python and logs.
+__pycache__/
+*.pyc
+*.log
+
+# Local notes and scratch.
+*.local
+*.local.*
+
+# NOTE: .gitignore only protects files that are NOT tracked. It does nothing
+# about a secret pasted into a file that IS tracked (wrangler.toml, for
+# example). Secrets belong in `wrangler secret put`, never in the repo.

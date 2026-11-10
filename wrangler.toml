@@ -1,0 +1,109 @@
+﻿name = "pecron-solar-dashboard"
+main = "src/index.js"
+compatibility_date = "2026-08-20"
+
+# Serves the Worker on https://pecron-solar-dashboard.<your-subdomain>.workers.dev
+workers_dev = true
+
+# Optional custom domain. The domain's DNS must be on Cloudflare (same account).
+# Uncomment, put your own hostname in, and deploy. See docs/SETUP.md.
+# routes = [
+#   { pattern = "solar.example.com", custom_domain = true }
+# ]
+
+# The pages are served by the Worker rather than hosted elsewhere, so they are
+# same-origin with the API they read. Anywhere else they would be blocked by
+# cross-origin policy or need CORS exceptions they should not have.
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
+# Poll every 5 minutes. The device itself reports to Pecron's cloud roughly
+# this often, so polling faster mostly re-reads the same value.
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Create the database with:   npx wrangler d1 create pecron-solar-dashboard
+# then paste the database_id it prints in place of the placeholder below.
+[[d1_databases]]
+binding = "DB"
+database_name = "pecron-solar-dashboard"
+database_id = "REPLACE-WITH-YOUR-D1-DATABASE-ID"
+
+# ---------------------------------------------------------------------------
+# Plain (non-secret) settings. Every one is described in docs/CONFIGURATION.md.
+# Secrets are NOT set here - they would end up in git. See the bottom of file.
+# ---------------------------------------------------------------------------
+[vars]
+# Shown in page headers, titles and alert subjects.
+SITE_NAME = "My Solar Battery"
+# Shown in the dashboard footer.
+DEVICE_NAME = "Pecron F3000LFP"
+# IANA timezone name for where the unit is, e.g. "Europe/Berlin". Controls how
+# timestamps are stored, where each day starts, and the alert schedule.
+SITE_TIMEZONE = "America/New_York"
+
+# Vendor cloud region: US, EU or CN. Must match where your Pecron app account
+# lives, and decides which PECRON_SECRET_<REGION> secret is used.
+PECRON_REGION = "US"
+# Product key / device key of your unit. Leave both empty and the Worker uses
+# the first device on the account and logs the keys it found (see
+# docs/SETUP.md, "Find your device keys"). Filling them in saves an API call
+# on every poll.
+PECRON_PK = ""
+PECRON_DK = ""
+
+# Battery usable capacity in watt-hours (F3000LFP: 3072).
+BATTERY_CAPACITY_WH = "3072"
+# Total nameplate watts of your solar panel(s).
+PANEL_WATTS = "400"
+# HH:MM local time when the panel starts producing in earnest (later than
+# sunrise if it is shaded in the morning), and when to stop treating the day as
+# "panel hours" for the overnight-depletion alert.
+SOLAR_WINDOW_OPENS = "08:45"
+SOLAR_WINDOW_CLOSES = "16:00"
+
+# Your grid electricity price in $/kWh, for the "value generated" figures.
+# SET YOUR OWN: total charges / total kWh from a real bill (the blended rate,
+# including delivery). Then set GRID_RATE_VERIFIED = "true" so the pages stop
+# calling it a placeholder.
+GRID_RATE_USD_PER_KWH = "0.30"
+GRID_RATE_VERIFIED = "false"
+# Optional: when the battery was last charged from the grid, if that happened
+# before monitoring began, e.g. "2026-01-31T12:00:00-05:00". Leave empty if
+# unknown; a grid charge seen in the data always takes precedence when newer.
+LAST_GRID_CHARGE = ""
+
+# Default accent colour (hex) for the /embed widget. A host page can still
+# override it per embed with ?accent=RRGGBB.
+EMBED_ACCENT = "#2E7D5B"
+
+# Alerting: telemetry stale, device fault code, and the pack not having the
+# runtime to reach SOLAR_WINDOW_OPENS. Alerts are sent on state changes only
+# (once when a problem starts, once when it clears), at any hour - overnight is
+# when a solar-charged battery is most likely to run flat.
+ALERT_STALE_MINUTES = "30"
+
+# Email alerting via Mailgun. MAILGUN_API_KEY is a SECRET, not set here.
+# Alerts stay off until the key, the domain and the address are all set.
+MAILGUN_DOMAIN = ""             # e.g. "mg.example.com" - your Mailgun sending domain
+ALERT_EMAIL = ""                # where alerts go, e.g. "you@example.com"
+ALERT_FROM_NAME = ""            # optional sender name; defaults to "<SITE_NAME> Solar"
+
+# Gate for the internal pages (/ and /mockups) with HTTP Basic auth. Uncomment
+# ONLY once the MONITOR_TOKEN secret is set, then deploy. With this on and the
+# secret missing the pages refuse loudly rather than quietly reopening to the
+# internet. Never extend the gate to /embed or the API reads it calls.
+# MONITOR_GATE = "on"
+
+# ---------------------------------------------------------------------------
+# Secrets - set with `npx wrangler secret put NAME`, never in this file:
+#   PECRON_EMAIL, PECRON_PASSWORD     your Pecron app login
+#   PECRON_SECRET_US / _EU / _CN      vendor signing secret for your region
+#   CONTROL_TOKEN                     required for /control and /api/test-alert
+#   INGEST_TOKEN                      required for /api/ingest and /api/poll
+#   MAILGUN_API_KEY                   optional, enables email alerts
+#   MONITOR_TOKEN                     optional, password for the page gate
+#   ALERT_WEBHOOK                     optional, Discord/Slack/ntfy webhook URL
+# ---------------------------------------------------------------------------

@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>__SITE_NAME__ · Solar Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --brand:#2E7D5B; --brand-deep:#1F5A41; --accent:#E2622C;
+  --ground:#F7F5F0; --card:#FFFFFF; --card-2:#FBFAF7;
+  --line:#E4DFD6; --line-soft:#EFEBE3;
+  --ink:#191D1D; --ink-2:#4C5654; --ink-3:#79817F;
+  --s-solar:#B06200; --s-load:#6D4EA0; --s-batt:#008E95;
+  --s-solar-fill:rgba(176,98,0,.13); --s-batt-fill:rgba(0,142,149,.11);
+  --ok:#1B7F4B; --ok-bg:rgba(27,127,75,.10);
+  --idle:#79817F; --idle-bg:rgba(121,129,127,.12);
+  --bad:#B3261E; --bad-bg:rgba(179,38,30,.10);
+  --grid:rgba(25,29,29,.09); --nodata:rgba(25,29,29,.045);
+  --shadow:0 1px 2px rgba(25,29,29,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --brand:#3E9A70; --brand-deep:#12382A; --accent:#F0784A;
+    --ground:#121615; --card:#1A1F1E; --card-2:#161B1A;
+    --line:#2C3433; --line-soft:#242B2A;
+    --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+    --s-solar:#C97A1A; --s-load:#8C79C9; --s-batt:#1F9AA1;
+    --s-solar-fill:rgba(201,122,26,.16); --s-batt-fill:rgba(31,154,161,.14);
+    --ok:#4FB07A; --ok-bg:rgba(79,176,122,.14);
+    --idle:#7E8886; --idle-bg:rgba(126,136,134,.16);
+    --bad:#E4685E; --bad-bg:rgba(228,104,94,.14);
+    --grid:rgba(237,239,238,.10); --nodata:rgba(237,239,238,.04);
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --brand:#3E9A70; --brand-deep:#12382A; --accent:#F0784A;
+  --ground:#121615; --card:#1A1F1E; --card-2:#161B1A;
+  --line:#2C3433; --line-soft:#242B2A;
+  --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+  --s-solar:#C97A1A; --s-load:#8C79C9; --s-batt:#1F9AA1;
+  --s-solar-fill:rgba(201,122,26,.16); --s-batt-fill:rgba(31,154,161,.14);
+  --ok:#4FB07A; --ok-bg:rgba(79,176,122,.14);
+  --idle:#7E8886; --idle-bg:rgba(126,136,134,.16);
+  --bad:#E4685E; --bad-bg:rgba(228,104,94,.14);
+  --grid:rgba(237,239,238,.10); --nodata:rgba(237,239,238,.04);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:Figtree,"Segoe UI",system-ui,sans-serif; font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+.num{font-variant-numeric:tabular-nums}
+
+.bar{background:var(--brand-deep); color:#fff; padding:11px 20px; display:flex; align-items:center; gap:13px}
+.logo{border:2px solid #fff; border-radius:7px; padding:3px 9px; font-weight:800; font-size:11px; letter-spacing:.06em; text-transform:uppercase}
+.bar .t{font-size:13px; opacity:.8}
+.bar .r{margin-left:auto; display:flex; gap:8px; align-items:center}
+
+.wrap{max-width:1080px; margin:0 auto; padding:20px 20px 60px}
+
+.pill{display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 11px;
+  font-size:12.5px; font-weight:650; border:1px solid transparent; white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.pill.ok{color:var(--ok); background:var(--ok-bg); border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+.pill.idle{color:var(--idle); background:var(--idle-bg); border-color:color-mix(in srgb,var(--idle) 30%,transparent)}
+.pill.bad{color:var(--bad); background:var(--bad-bg); border-color:color-mix(in srgb,var(--bad) 32%,transparent)}
+.pill.tag{color:var(--ink-2); background:var(--card); border-color:var(--line)}
+.bar .pill.tag{color:#fff; background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.22)}
+
+.fault{
+  display:flex; gap:12px; align-items:flex-start; background:var(--bad-bg);
+  border:1px solid color-mix(in srgb,var(--bad) 34%,transparent); border-left:3px solid var(--bad);
+  border-radius:10px; padding:13px 16px; margin-bottom:16px;
+}
+.fault b{color:var(--bad)}
+.fault p{margin:3px 0 0; color:var(--ink-2); font-size:13.5px}
+.fault[hidden]{display:none}
+
+.hero{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); padding:20px 22px; margin-bottom:14px;
+  display:flex; flex-wrap:wrap; gap:26px; align-items:flex-end;
+}
+.hero .soc{display:flex; align-items:baseline; gap:4px}
+.hero .soc b{font-size:64px; font-weight:800; letter-spacing:-.035em; line-height:.95}
+.hero .soc u{font-size:22px; font-weight:600; color:var(--ink-2); text-decoration:none}
+.hero .meta{display:flex; flex-direction:column; gap:5px}
+.hero .lab{font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
+.hero .flow{font-size:26px; font-weight:700; letter-spacing:-.02em}
+.hero .sub{font-size:13px; color:var(--ink-3)}
+.socbar{flex:1 1 200px; min-width:180px}
+.socbar .track{height:8px; border-radius:5px; background:var(--line-soft); overflow:hidden}
+.socbar .track i{display:block; height:100%; border-radius:5px; background:var(--s-batt); transition:width .4s}
+.socbar .ends{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-3); margin-top:5px}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:11px; margin-bottom:20px}
+.tile{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; box-shadow:var(--shadow)}
+.tile .lab{font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:flex; align-items:center; gap:6px}
+.tile .sw{width:8px;height:8px;border-radius:2px;flex:none}
+.tile .v{font-size:24px; font-weight:700; letter-spacing:-.02em; margin-top:6px; display:flex; align-items:baseline; gap:3px}
+.tile .v u{font-size:12.5px; font-weight:600; color:var(--ink-2); text-decoration:none}
+.tile .n{font-size:12px; color:var(--ink-3); margin-top:2px}
+
+.eyebrow{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin:26px 0 10px}
+/* Heatmap. A CSS grid rather than an SVG on purpose: it reflows at phone width
+   without any viewBox arithmetic, which is where the widget went wrong before.
+   Cells are capped in width so three days of data read as a column of squares
+   rather than stretching into fat bars. */
+.hm{overflow-x:auto}
+.hm-grid{display:grid; gap:2px; width:max-content; min-width:100%}
+.hm-cell{width:100%; min-width:26px; max-width:34px; height:15px; border-radius:2px; background:var(--s-solar); position:relative}
+.hm-hr{font-size:10px; color:var(--ink-3); text-align:right; padding-right:7px; line-height:15px; white-space:nowrap}
+.hm-day{font-size:9.5px; color:var(--ink-3); text-align:center; padding-top:4px; letter-spacing:.02em}
+.hm-key{display:flex; align-items:center; gap:7px; margin-top:11px; font-size:11px; color:var(--ink-3)}
+.hm-key i{display:block; width:15px; height:11px; border-radius:2px; background:var(--s-solar)}
+.ht-row{display:flex; align-items:baseline; gap:10px; padding:6px 0; border-bottom:1px solid var(--line-soft); font-size:13px}
+.ht-row:last-child{border-bottom:0}
+.ht-b{font-weight:700; min-width:62px; color:var(--ink-2)}
+.ht-v{font-family:"IBM Plex Mono",monospace; color:var(--ink)}
+.ht-n{color:var(--ink-3); font-size:12px; margin-left:auto}
+.notyet{background:var(--warn-bg); border:1px solid var(--warn); border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--ink-2); margin-bottom:11px}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:11px; box-shadow:var(--shadow); padding:15px 17px 11px}
+.card + .card{margin-top:13px}
+.card h2{font-size:14.5px; font-weight:700; margin:0}
+.card .cap{font-size:12.5px; color:var(--ink-3); margin:2px 0 0}
+.head{display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; margin-bottom:8px}
+.legend{margin-left:auto; display:flex; gap:13px; flex-wrap:wrap}
+.legend i{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2); font-style:normal; font-weight:500}
+.legend i b{width:11px;height:3px;border-radius:2px;display:block}
+
+.btn{appearance:none; border:1px solid var(--line); background:var(--card); color:var(--ink-2);
+  border-radius:7px; padding:5px 11px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer}
+.btn:hover{border-color:var(--ink-3); color:var(--ink)}
+.btn.on{background:var(--brand); border-color:var(--brand); color:#fff}
+.btn:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+.seg{display:flex; gap:5px}
+
+svg{display:block; width:100%; height:auto; overflow:visible}
+.gridline{stroke:var(--grid); stroke-width:1; vector-effect:non-scaling-stroke}
+.axis{fill:var(--ink-3); font-size:10px; font-family:"IBM Plex Mono",monospace}
+.chartbox{position:relative}
+.tip{position:absolute; pointer-events:none; z-index:5; background:var(--card); border:1px solid var(--line);
+  border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.14); padding:8px 10px; font-size:12.5px; min-width:130px; opacity:0; transition:opacity .1s}
+.tip .t{font-weight:700; margin-bottom:5px; font-size:12px}
+.tip .r{display:flex; align-items:center; gap:8px; justify-content:space-between; color:var(--ink-2)}
+.tip .r span{display:inline-flex; align-items:center; gap:6px}
+.tip .r b{width:9px;height:9px;border-radius:2px;display:block}
+.tip .r em{font-style:normal; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums}
+
+.scroll{overflow-x:auto; margin:0 -17px; padding:0 17px}
+table{border-collapse:collapse; width:100%; font-size:13px}
+th{text-align:right; font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3);
+  font-weight:700; padding:7px 10px 7px 0; border-bottom:1px solid var(--line); white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:8px 10px 8px 0; border-bottom:1px solid var(--line-soft); color:var(--ink-2); white-space:nowrap; text-align:right; font-variant-numeric:tabular-nums}
+td:first-child{color:var(--ink); font-weight:650; text-align:left}
+tr:last-child td{border-bottom:0}
+
+.status{margin-top:18px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:14px 17px; box-shadow:var(--shadow)}
+.status dl{margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px 22px}
+.status dt{font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.status dd{margin:2px 0 0; font-size:13.5px; color:var(--ink)}
+.pev{padding:12px 0; border-bottom:1px solid var(--line-soft)}
+.pev:last-child{border-bottom:0}
+.pev .pev-name{font-weight:700; font-size:14px}
+.pev .pev-type{color:var(--ink-2); font-weight:500}
+.pev .pev-specs{display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:5px; font-size:12.5px; color:var(--ink-2)}
+.pev .pev-specs span{white-space:nowrap}
+.pev .pev-link{display:inline-block; margin-top:6px; font-size:12.5px; font-weight:600; color:var(--brand); text-decoration:none}
+.pev .pev-link:hover{text-decoration:underline}
+.foot{margin-top:16px; text-align:center; color:var(--ink-3); font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="logo">__SITE_NAME__</span>
+  <span class="t">Solar battery</span>
+  <span class="r">
+    <span class="pill tag mono" id="age">—</span>
+    <button class="btn" id="refresh" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#fff">Refresh</button>
+  </span>
+</div>
+
+<div class="wrap">
+
+  <div class="fault" id="fault" hidden>
+    <div style="font-size:17px;line-height:1.1">⚠︎</div>
+    <div><b id="fault-title">Fault reported</b><p id="fault-detail"></p></div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <div class="lab">State of charge</div>
+      <div class="soc num"><b id="soc">—</b><u>%</u></div>
+    </div>
+    <div class="meta">
+      <div class="lab">Status</div>
+      <div class="flow" id="status">—</div>
+      <div class="sub" id="remain">—</div>
+    </div>
+    <div class="meta">
+      <div class="lab">Battery flow</div>
+      <div class="flow num" id="flow">—</div>
+      <div class="sub" id="flow-note">from pack voltage × current</div>
+    </div>
+    <div class="socbar">
+      <div class="track"><i id="socbar" style="width:0%"></i></div>
+      <div class="ends"><span>0%</span><span id="stored">— Wh stored</span><span>100%</span></div>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="lab"><i class="sw" style="background:var(--s-solar)"></i>Solar in</div><div class="v num"><span id="t-solar">—</span><u>W</u></div><div class="n" id="t-solar-n">DC input</div></div>
+    <div class="tile"><div class="lab"><i class="sw" style="background:var(--s-load)"></i>DC out</div><div class="v num"><span id="t-dc">—</span><u>W</u></div><div class="n" id="t-dc-n">—</div></div>
+    <div class="tile"><div class="lab">AC out</div><div class="v num"><span id="t-ac">—</span><u>W</u></div><div class="n" id="t-ac-n">—</div></div>
+    <div class="tile"><div class="lab">Pack voltage</div><div class="v num"><span id="t-v">—</span><u>V</u></div><div class="n">3-decimal resolution</div></div>
+    <div class="tile"><div class="lab">Pack current</div><div class="v num"><span id="t-a">—</span><u>A</u></div><div class="n" id="t-a-n">—</div></div>
+    <div class="tile"><div class="lab">Temperature</div><div class="v num"><span id="t-temp">—</span><u>°C</u></div><div class="n">battery pack</div></div>
+  </div>
+
+  <div class="eyebrow">History</div>
+
+  <div class="card">
+    <div class="head">
+      <div><h2>State of charge</h2><p class="cap" id="win-cap">Percent of the __CAPACITY_WH_FMT__ Wh pack</p></div>
+      <div class="seg" id="windows">
+        <button class="btn" data-h="6">6h</button>
+        <button class="btn on" data-h="24">24h</button>
+        <button class="btn" data-h="168">7d</button>
+      </div>
+    </div>
+    <div class="chartbox" id="cb-soc"><svg id="c-soc" viewBox="0 0 880 170" role="img" aria-label="State of charge over the selected window"></svg><div class="tip" id="tip-soc"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="head">
+      <div><h2>Power flow</h2><p class="cap" id="pow-cap">Solar in against what the loads draw. One axis — all three are watts.</p></div>
+      <div class="legend">
+        <i><b style="background:var(--s-solar)"></b>Solar in</i>
+        <i><b style="background:var(--s-load)"></b>DC out</i>
+        <i><b style="background:var(--ink-3)"></b>AC out</i>
+      </div>
+      <div class="seg" id="pow-windows" style="flex-basis:100%;justify-content:flex-end">
+        <button class="btn" data-h="6">6h</button>
+        <button class="btn on" data-h="24">24h</button>
+        <button class="btn" data-h="168">7d</button>
+      </div>
+    </div>
+    <div class="chartbox" id="cb-pow"><svg id="c-pow" viewBox="0 0 880 190" role="img" aria-label="Solar input and output power over the selected window"></svg><div class="tip" id="tip-pow"></div></div>
+  </div>
+
+  <div class="eyebrow">Daily</div>
+
+  <div class="card">
+    <div class="head"><div><h2>Energy balance</h2><p class="cap">Overhead is inverter idle and conversion loss — energy that leaves the pack without being delivered anywhere.</p></div></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Date</th><th>Harvest</th><th>Delivered</th><th>AC / DC</th><th>Stored Δ</th><th>Overhead</th><th>SoC</th></tr></thead>
+        <tbody id="daily"><tr><td colspan="7" style="text-align:left;color:var(--ink-3)">loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="eyebrow">Efficiency</div>
+
+  <div class="tiles">
+    <div class="tile"><div class="lab">Peak sun hours</div><div class="v num"><span id="e-psh">—</span><u>h</u></div><div class="n" id="e-psh-n">today, against __PANEL_WATTS__ W</div></div>
+    <div class="tile"><div class="lab">Best day</div><div class="v num"><span id="e-pshb">—</span><u>h</u></div><div class="n" id="e-pshb-n">—</div></div>
+    <div class="tile"><div class="lab">Self-sufficiency</div><div class="v num"><span id="e-ss">—</span><u>%</u></div><div class="n">load met by sun as it arrived</div></div>
+    <div class="tile"><div class="lab">Pack life used</div><div class="v num"><span id="e-cyc">—</span><u>%</u></div><div class="n" id="e-cyc-n">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="head"><div><h2>When the sun reaches the panel</h2><p class="cap" id="hm-cap">Average watts by hour. A hard edge that repeats every day at the same hour is usually shading, not weather.</p></div></div>
+    <div id="heatmap" class="hm"><p class="cap">loading…</p></div>
+  </div>
+
+  <div class="card">
+    <div class="head"><div><h2>Pack health drift</h2><p class="cap" id="ht-cap">Resting voltage at a comparable state of charge. Compare a bucket against itself over time — never across buckets.</p></div></div>
+    <div id="health"><p class="cap">loading…</p></div>
+  </div>
+
+  <div class="card">
+    <div class="head"><div><h2>What the sun replaced</h2><p class="cap" id="val-cap">Energy the loads did not have to draw from the grid, and what it was worth.</p></div></div>
+    <div class="tiles" style="padding:0">
+      <div class="tile"><div class="lab">Grid energy avoided</div><div class="v num"><span id="g-life">—</span><u>kWh</u></div><div class="n">all time</div></div>
+      <div class="tile"><div class="lab">Value generated</div><div class="v num"><u>$</u><span id="v-life">—</span></div><div class="n" id="v-life-n">all time</div></div>
+      <div class="tile"><div class="lab">Avoided today</div><div class="v num"><span id="g-today">—</span><u>kWh</u></div><div class="n">since midnight</div></div>
+      <div class="tile"><div class="lab">Value today</div><div class="v num"><u>$</u><span id="v-today">—</span></div><div class="n">since midnight</div></div>
+      <div class="tile"><div class="lab">Total harvested</div><div class="v num"><span id="g-harvest">—</span><u>kWh</u></div><div class="n">including overhead</div></div>
+      <div class="tile"><div class="lab">System efficiency</div><div class="v num"><span id="g-eff">—</span><u>%</u></div><div class="n" id="g-eff-n">harvest → loads</div></div>
+    </div>
+    <p class="cap" style="margin:12px 2px 0" id="val-note">—</p>
+  </div>
+
+  <div class="eyebrow">Riding on sunlight</div>
+
+  <div class="tiles">
+    <div class="tile"><div class="lab">Commutes banked</div><div class="v num"><span id="r-commutes">—</span><u id="r-commute-mi">× — mi</u></div><div class="n" id="r-commutes-n">round trips on sun energy</div></div>
+    <div class="tile"><div class="lab">Miles on sunlight</div><div class="v num"><span id="r-miles">—</span><u>mi</u></div><div class="n">all time equivalent</div></div>
+    <div class="tile"><div class="lab">Miles today</div><div class="v num"><span id="r-today">—</span><u>mi</u></div><div class="n">today's sun</div></div>
+    <div class="tile"><div class="lab">Days since grid charge</div><div class="v num"><span id="r-days">—</span></div><div class="n" id="r-days-n">since last grid charge</div></div>
+  </div>
+
+  <div class="card" id="pev-card">
+    <div class="head"><div><h2>What charges here</h2><p class="cap">Vehicles that charge from this solar setup. Edit <span class="mono">src/site.config.js</span> to change this list.</p></div></div>
+    <div id="pev-list"></div>
+  </div>
+
+  <div class="status">
+    <dl>
+      <div><dt>Data age</dt><dd id="s-age">—</dd></div>
+      <div><dt>Sources active</dt><dd id="s-src">—</dd></div>
+      <div><dt>Local polling</dt><dd id="s-local">—</dd></div>
+      <div><dt>Outputs</dt><dd id="s-sw">—</dd></div>
+    </dl>
+  </div>
+
+  <p class="foot">__DEVICE_NAME__ · __CAPACITY_WH_FMT__ Wh · readings arrive every few minutes, not continuously</p>
+</div>
+
+<script type="module">
+const API = "";
+// Filled in by the Worker from wrangler.toml [vars] when the page is served.
+const CAP = Number("__CAPACITY_WH__") || 3072;
+const PANEL = Number("__PANEL_WATTS__") || 400;
+const PSH_NORM = "__PSH_NORM__";
+
+/* The device reports these as raw integers; decode for display only. */
+const STATUS = ["Shut down","Charging","DC discharge","AC discharge","Standby","Conservation"];
+const FAULTS = {
+  1:"Battery over-temperature", 2:"Battery overvoltage", 3:"Battery undervoltage",
+  4:"Battery short circuit", 5:"Charge overcurrent", 6:"Discharge overcurrent",
+  7:"Charger input overvoltage", 8:"Charger input overcurrent", 9:"Charger output overvoltage",
+  10:"Charger output overcurrent", 11:"Charger output short circuit", 12:"Charger input undervoltage",
+  13:"Charger overheating", 14:"DC output short circuit", 15:"DC output overvoltage",
+  16:"DC output overcurrent", 17:"DC output over-temperature",
+};
+
+const $ = s => document.querySelector(s);
+const fmt = n => (n === null || n === undefined) ? "—" : Number(n).toLocaleString("en-US");
+const ago = m => m === null || m === undefined ? "no data"
+  : m < 120 ? `${m} min ago` : m < 2880 ? `${Math.round(m / 60)} h ago` : `${(m / 1440).toFixed(1)} days ago`;
+const hhmm = d => String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+const SER = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+
+// Each chart keeps its own window: charge is usually worth seeing over a day,
+// while power flow is far more legible at 6h when something is actually happening.
+let socHours = 24;
+let powHours = 24;
+
+async function get(path){
+  const r = await fetch(API + path, { cache: "no-store" });
+  if (!r.ok) throw new Error(`${path} → HTTP ${r.status}`);
+  return r.json();
+}
+
+/* ------------------------------------------------------------------ live -- */
+function renderLatest(d, health){
+  const charging = (d.powerWatts ?? 0) > 0;
+  $("#soc").textContent = d.soc ?? "—";
+  $("#socbar").style.width = (d.soc ?? 0) + "%";
+  $("#stored").textContent = fmt(Math.round(CAP * (d.soc ?? 0) / 100)) + " Wh stored";
+
+  /* The device reports status 0 - "Shut Down" in its own enum - whenever it is
+     simply not charging, including while it is actively powering loads. It has
+     not been observed emitting 2 (DC Discharge) or 3 (AC Discharge).
+     Taking the label literally tells the reader the unit is off while it is
+     visibly running, so only trust the enum above 0 and otherwise describe what
+     the power flow is actually doing. */
+  const st = d.device_status;
+  const w = d.powerWatts ?? 0;
+  $("#status").textContent =
+    (st > 0 && STATUS[st]) ? STATUS[st]
+    : charging ? "Charging"
+    : Math.abs(w) < 5 ? "Idle"
+    : "Powering loads";
+
+  /*
+   * Reserve remaining.
+   *
+   * The firmware populates remain_time and remain_charging_time separately and
+   * only one is meaningful at a time — but WE ONLY CAPTURE remain_time, the
+   * DISCHARGE figure. Labelling it "to full" while charging would present a
+   * discharge estimate as a charge estimate, so it is shown only while
+   * discharging; charging says so plainly instead.
+   *
+   * The sanity bound is a fortnight. With a light overnight load the pack can
+   * legitimately report several thousand minutes, and a tighter cap would
+   * show a genuinely excellent reserve as "—".
+   */
+  const mins = d.minutes_remaining;
+  const usable = !charging && mins > 0 && mins < 20160;
+  $("#remain").textContent = usable
+    ? (mins >= 2880
+        ? `${(mins / 1440).toFixed(1)} days remaining`
+        : `${Math.floor(mins / 60)}h ${mins % 60}m remaining`)
+    : (charging ? "charging from solar" : "—");
+
+  const pw = d.powerWatts;
+  $("#flow").textContent = pw === null || pw === undefined ? "—" : (pw > 0 ? "+" : "−") + Math.abs(pw).toFixed(1) + " W";
+  $("#flow").style.color = pw > 0 ? "var(--ok)" : "var(--ink)";
+  $("#flow-note").textContent = pw > 0 ? "into the pack" : "out of the pack";
+
+  $("#t-solar").textContent = fmt(d.solar_w);
+  $("#t-solar-n").textContent = d.solar_w > 0 ? `${Math.round(d.solar_w/PANEL*100)}% of ${PANEL} W array` : "no generation";
+  $("#t-dc").textContent = fmt(d.dc_out_w);
+  $("#t-dc-n").textContent = d.dc_switch ? "rail on" : "rail off";
+  $("#t-ac").textContent = fmt(d.ac_out_w);
+  $("#t-ac-n").textContent = d.ac_switch ? "inverter on" : "inverter off";
+  $("#t-v").textContent = d.voltage === null ? "—" : Number(d.voltage).toFixed(3);
+  $("#t-a").textContent = d.current_amps === null ? "—" : Number(d.current_amps).toFixed(2);
+  $("#t-a-n").textContent = charging ? "charging" : "discharging";
+  $("#t-temp").textContent = fmt(d.temperature_c);
+
+  // Only surfaced when there is something to say.
+  const f = d.fault_code;
+  const box = $("#fault");
+  if (f) {
+    box.hidden = false;
+    $("#fault-title").textContent = FAULTS[f] || `Fault code ${f}`;
+    $("#fault-detail").textContent = `Reported by the battery at ${new Date(d.captured_at).toLocaleString()}.`;
+  } else box.hidden = true;
+
+  const age = health?.lastSampleAgeMinutes;
+  const stale = health?.stale;
+  const pill = `<span class="pill ${stale ? "bad" : "ok"}"><i></i>${ago(age)}</span>`;
+  $("#age").outerHTML = `<span class="pill ${stale ? "bad" : "tag"} mono" id="age">${stale ? "<i></i>offline · " : ""}${ago(age)}</span>`;
+  $("#s-age").innerHTML = pill;
+
+  /* A stale row is history, not the present. Without this, a frozen cloud
+     feed keeps its last "221 W" and "Charging" on screen as if the panel were
+     producing. Keep the last state of charge (still the best estimate of what
+     is in the pack) but stop presenting flows as current. */
+  if (stale) {
+    const when = new Date(d.captured_at).toLocaleString();
+    $("#status").textContent = "Offline";
+    $("#remain").textContent = `no reading for ${ago(age).replace(" ago", "")}`;
+    $("#flow").textContent = "—";
+    $("#flow").style.color = "var(--ink)";
+    $("#flow-note").textContent = `last reading ${when}`;
+    $("#t-solar").textContent = "—";
+    $("#t-solar-n").textContent = `last seen ${fmt(d.solar_w)} W`;
+    $("#t-dc").textContent = "—";
+    $("#t-ac").textContent = "—";
+    $("#t-a").textContent = "—";
+    $("#t-a-n").textContent = "no current reading";
+    $("#stored").textContent = fmt(Math.round(CAP * (d.soc ?? 0) / 100)) + " Wh at last reading";
+  }
+  $("#s-src").textContent = (health?.sourcesActive || []).join(", ") || "none";
+  $("#s-local").textContent = health?.localPolling?.note || "—";
+  $("#s-sw").textContent = `AC ${d.ac_switch ? "on" : "off"} · DC ${d.dc_switch ? "on" : "off"} · ECO ${d.eco ? "on" : "off"}`;
+}
+
+/* ---------------------------------------------------------------- charts -- */
+const NS = "http://www.w3.org/2000/svg";
+const el = (t,a={}) => { const n = document.createElementNS(NS,t); for(const k in a) n.setAttribute(k,a[k]); return n; };
+const path = p => p.map((q,i) => (i?"L":"M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
+
+function frame(svg,W,H,pad,rows,yMax,ticks,fmtY){
+  svg.textContent = "";
+  const t0 = Date.parse(rows[0].captured_at), t1 = Date.parse(rows.at(-1).captured_at);
+  const span = Math.max(1, t1 - t0);
+  const x = t => pad.l + (t - t0)/span * (W - pad.l - pad.r);
+  const y = v => H - pad.b - (v/yMax) * (H - pad.t - pad.b);
+  ticks.forEach(v => {
+    svg.appendChild(el("line",{x1:pad.l,x2:W-pad.r,y1:y(v),y2:y(v),class:"gridline"}));
+    svg.appendChild(Object.assign(el("text",{x:pad.l-7,y:y(v)+3.5,class:"axis","text-anchor":"end"}),{textContent:fmtY(v)}));
+  });
+  const steps = 5;
+  for (let i=0;i<=steps;i++){
+    const t = t0 + span*i/steps;
+    svg.appendChild(Object.assign(el("text",{x:x(t),y:H-pad.b+14,class:"axis","text-anchor":"middle"}),{textContent:hhmm(new Date(t))}));
+  }
+  return {x,y};
+}
+
+function drawSoc(rows){
+  const svg=$("#c-soc"), tip=$("#tip-soc"), box=$("#cb-soc");
+  const W=880,H=170,pad={l:38,r:12,t:12,b:24};
+  if (!rows.length) return;
+  const {x,y}=frame(svg,W,H,pad,rows,100,[0,25,50,75,100],v=>v+"%");
+  const pts=rows.map(r=>[x(Date.parse(r.captured_at)),y(r.soc??0)]);
+  svg.appendChild(el("path",{d:path(pts)+`L${pts.at(-1)[0]} ${y(0)}L${pts[0][0]} ${y(0)}Z`,fill:"var(--s-batt-fill)"}));
+  svg.appendChild(el("path",{d:path(pts),fill:"none",stroke:SER("--s-batt"),"stroke-width":2,"stroke-linejoin":"round","vector-effect":"non-scaling-stroke"}));
+  const last=rows.at(-1);
+  svg.appendChild(el("circle",{cx:pts.at(-1)[0],cy:pts.at(-1)[1],r:4,fill:SER("--s-batt"),stroke:"var(--card)","stroke-width":2}));
+  hover(svg,tip,box,W,pad,rows,i=>x(Date.parse(rows[i].captured_at)),i=>{
+    const r=rows[i];
+    return `<div class="t">${hhmm(new Date(r.captured_at))}</div>
+      <div class="r"><span><b style="background:${SER("--s-batt")}"></b>Charge</span><em>${r.soc}%</em></div>
+      <div class="r"><span>Stored</span><em>${fmt(Math.round(CAP*r.soc/100))} Wh</em></div>`;
+  });
+}
+
+function drawPower(rows){
+  const svg=$("#c-pow"), tip=$("#tip-pow"), box=$("#cb-pow");
+  const W=880,H=190,pad={l:40,r:12,t:12,b:24};
+  if (!rows.length) return;
+  const peak=Math.max(100,...rows.map(r=>Math.max(r.solar_w||0,r.ac_out_w||0,r.dc_out_w||0)));
+  const yMax=Math.ceil(peak/100)*100;
+  const ticks=[0,yMax/4,yMax/2,yMax*3/4,yMax];
+  const {x,y}=frame(svg,W,H,pad,rows,yMax,ticks,v=>Math.round(v));
+  const line=(key,color,fill)=>{
+    const pts=rows.map(r=>[x(Date.parse(r.captured_at)),y(r[key]||0)]);
+    if (fill) svg.appendChild(el("path",{d:path(pts)+`L${pts.at(-1)[0]} ${y(0)}L${pts[0][0]} ${y(0)}Z`,fill}));
+    svg.appendChild(el("path",{d:path(pts),fill:"none",stroke:color,"stroke-width":2,"stroke-linejoin":"round","vector-effect":"non-scaling-stroke"}));
+  };
+  line("solar_w",SER("--s-solar"),"var(--s-solar-fill)");
+  line("dc_out_w",SER("--s-load"),null);
+  line("ac_out_w",SER("--ink-3"),null);
+  hover(svg,tip,box,W,pad,rows,i=>x(Date.parse(rows[i].captured_at)),i=>{
+    const r=rows[i];
+    return `<div class="t">${hhmm(new Date(r.captured_at))}</div>
+      <div class="r"><span><b style="background:${SER("--s-solar")}"></b>Solar</span><em>${fmt(r.solar_w)} W</em></div>
+      <div class="r"><span><b style="background:${SER("--s-load")}"></b>DC out</span><em>${fmt(r.dc_out_w)} W</em></div>
+      <div class="r"><span><b style="background:${SER("--ink-3")}"></b>AC out</span><em>${fmt(r.ac_out_w)} W</em></div>`;
+  });
+}
+
+function hover(svg,tip,box,W,pad,rows,xOf,html){
+  const cross=el("line",{y1:pad.t,y2:svg.viewBox.baseVal.height-pad.b,stroke:"var(--ink-3)","stroke-width":1,"stroke-dasharray":"3 3",opacity:0,"vector-effect":"non-scaling-stroke"});
+  svg.appendChild(cross);
+  const move=ev=>{
+    const r=svg.getBoundingClientRect(), px=(ev.clientX-r.left)/r.width*W;
+    let best=-1,bd=1e9;
+    rows.forEach((_,i)=>{const d=Math.abs(xOf(i)-px); if(d<bd){bd=d;best=i;}});
+    if(best<0||bd>40){ tip.style.opacity=0; cross.setAttribute("opacity",0); return; }
+    tip.innerHTML=html(best); tip.style.opacity=1;
+    cross.setAttribute("opacity",1); cross.setAttribute("x1",xOf(best)); cross.setAttribute("x2",xOf(best));
+    const bx=box.getBoundingClientRect();
+    let left=(xOf(best)/W)*bx.width+14;
+    if(left+tip.offsetWidth>bx.width) left-=tip.offsetWidth+28;
+    tip.style.left=Math.max(0,left)+"px"; tip.style.top="6px";
+  };
+  svg.addEventListener("mousemove",move);
+  svg.addEventListener("mouseleave",()=>{tip.style.opacity=0; cross.setAttribute("opacity",0);});
+}
+
+/* ----------------------------------------------------------------- daily -- */
+function renderDaily(days){
+  $("#daily").innerHTML = days.slice().reverse().map(d=>`<tr>
+    <td>${d.date}</td>
+    <td>${fmt(d.harvestWattHours)} Wh</td>
+    <td>${fmt(d.consumedWattHours)} Wh</td>
+    <td style="color:var(--ink-3)">${fmt(d.consumedAcWattHours)} / ${fmt(d.consumedDcWattHours)}</td>
+    <td>${d.storedDeltaWattHours > 0 ? "+" : ""}${fmt(d.storedDeltaWattHours)} Wh</td>
+    <td style="color:var(--s-solar);font-weight:650">${fmt(d.overheadWattHours)} Wh</td>
+    <td>${d.socOpen}% → ${d.socClose}%</td></tr>`).join("");
+}
+
+/* ------------------------------------------------------------------ load -- */
+async function load(){
+  try{
+    const [latest, health] = await Promise.all([get("/api/latest"), get("/api/health")]);
+    renderLatest(latest, health);
+  }catch(e){ $("#s-age").textContent = "unreachable: " + e.message; }
+
+  // One request per window. When both are the same the second is served from
+  // cache, so this is not the two round-trips it looks like.
+  try{
+    const h = await get(`/api/history?hours=${socHours}`);
+    const rows = h.samples.filter(r => r.soc !== null);
+    $("#win-cap").textContent = `Percent of the ${fmt(CAP)} Wh pack · ${rows.length} readings`;
+    drawSoc(rows);
+  }catch(e){ /* chart stays empty rather than showing a wrong shape */ }
+
+  try{
+    const h = powHours === socHours
+      ? await get(`/api/history?hours=${socHours}`)
+      : await get(`/api/history?hours=${powHours}`);
+    const rows = h.samples.filter(r => r.soc !== null);
+    $("#pow-cap").textContent =
+      `Solar in against what the loads draw. One axis — all three are watts. · ${rows.length} readings`;
+    drawPower(rows);
+  }catch(e){ /* as above */ }
+
+  try{ renderDaily((await get("/api/daily?days=7")).days); }
+  catch(e){ $("#daily").innerHTML = `<tr><td colspan="7" style="text-align:left;color:var(--ink-3)">unavailable</td></tr>`; }
+
+  try{
+    const s = await get("/api/summary");
+    renderValue(s); renderEfficiency(s); renderRiding(s);
+  }catch(e){ $("#val-note").textContent = "Value figures unavailable."; }
+
+  try{ renderHeatmap(await get("/api/hourly?days=30")); }
+  catch(e){ $("#heatmap").innerHTML = `<p class="cap">Heatmap unavailable.</p>`; }
+
+  try{ renderHealth(await get("/api/health-trend")); }
+  catch(e){ $("#health").innerHTML = `<p class="cap">Health trend unavailable.</p>`; }
+}
+
+function renderEfficiency(s){
+  $("#e-psh").textContent  = s.peakSunHoursToday ?? "—";
+  $("#e-pshb").textContent = s.peakSunHoursBest ?? "—";
+  $("#e-ss").textContent   = s.selfSufficiencyPct ?? "—";
+  // A regional norm (site.config.js peakSunHoursNorm) turns a number that looks
+  // mediocre into a measurement of what shading or orientation costs.
+  $("#e-psh-n").textContent = PSH_NORM ? `today · regional norm ~${PSH_NORM} h` : `today, against ${PANEL} W`;
+  $("#e-pshb-n").textContent = s.bestDayDate ? `on ${s.bestDayDate}` : "—";
+  const pct = s.ratedCycles ? (s.equivalentFullCycles / s.ratedCycles) * 100 : null;
+  // Two decimals because at this age the figure is a fraction of a percent, and
+  // rounding it to 0 would read as "no data" rather than "barely used".
+  $("#e-cyc").textContent = pct === null ? "—" : pct.toFixed(2);
+  $("#e-cyc-n").textContent = `${s.equivalentFullCycles ?? "—"} of ${fmt(s.ratedCycles)} rated cycles`;
+}
+
+/* Hour x day grid. Colour is opacity over the solar hue rather than a rainbow
+   ramp: a single-hue scale stays readable for colour-blind viewers and in
+   greyscale, and the shading edges are what matter here, not fine gradations. */
+function renderHeatmap(h){
+  const box = $("#heatmap");
+  if (!h.cells?.length){ box.innerHTML = `<p class="cap">No generation recorded yet.</p>`; return; }
+  const days = h.days;
+  const hours = [...new Set(h.cells.map(c => c.hour))].sort((a,b)=>a-b);
+  const lo = Math.min(...hours), hi = Math.max(...hours);
+  const span = []; for (let x=lo; x<=hi; x++) span.push(x);
+  const byKey = new Map(h.cells.map(c => [`${c.date}|${c.hour}`, c]));
+  const max = Math.max(1, ...h.cells.map(c => c.avgWatts));
+
+  const g = document.createElement("div");
+  g.className = "hm-grid";
+  g.style.gridTemplateColumns = `auto repeat(${days.length}, minmax(26px, 34px))`;
+  for (const hr of span){
+    const lab = document.createElement("div");
+    lab.className = "hm-hr";
+    lab.textContent = String(hr).padStart(2,"0") + ":00";
+    g.appendChild(lab);
+    for (const d of days){
+      const c = byKey.get(`${d}|${hr}`);
+      const cell = document.createElement("div");
+      cell.className = "hm-cell";
+      const w = c?.avgWatts ?? 0;
+      cell.style.opacity = w > 0 ? String(0.12 + 0.88 * (w / max)) : "0.05";
+      cell.title = `${d} ${String(hr).padStart(2,"0")}:00 — ${w} W avg` +
+                   (c ? `, ${c.maxWatts} W peak` : ", no generation");
+      g.appendChild(cell);
+    }
+  }
+  g.appendChild(document.createElement("div"));
+  for (const d of days){
+    const lab = document.createElement("div");
+    lab.className = "hm-day";
+    lab.textContent = d.slice(5).replace("-", "/");
+    g.appendChild(lab);
+  }
+  box.innerHTML = "";
+  if (days.length < 7){
+    const n = document.createElement("div");
+    n.className = "notyet";
+    n.textContent = `${days.length} day${days.length===1?"":"s"} of data. The daily pattern is already legible; the week-to-week story needs a few more.`;
+    box.appendChild(n);
+  }
+  box.appendChild(g);
+  const key = document.createElement("div");
+  key.className = "hm-key";
+  key.innerHTML = `<span>less</span><i style="opacity:.12"></i><i style="opacity:.4"></i><i style="opacity:.7"></i><i style="opacity:1"></i><span>more · peak ${fmt(h.peakWatts)} W of ${fmt(h.panelWatts)} W</span>`;
+  box.appendChild(key);
+}
+
+/* Deliberately NOT a chart yet. Two points per bucket drawn as a trend line
+   would imply a slope that three days cannot support - and the whole purpose of
+   this panel is to catch slow degradation honestly. It shows the readings and
+   says what it is still waiting for. */
+function renderHealth(t){
+  const box = $("#health");
+  const pts = t.points ?? [];
+  if (!pts.length){ box.innerHTML = `<p class="cap">No resting-voltage readings yet.</p>`; return; }
+  const dates = [...new Set(pts.map(p => p.date))].sort();
+  box.innerHTML = "";
+  if (dates.length < 14){
+    const n = document.createElement("div");
+    n.className = "notyet";
+    n.textContent = `Baseline only — ${dates.length} day${dates.length===1?"":"s"} across ${new Set(pts.map(p=>p.socBucket)).size} charge buckets. Drift is meaningful over months; these are the readings future comparisons will be made against.`;
+    box.appendChild(n);
+  }
+  const latest = new Map();
+  for (const p of pts.sort((a,b)=> a.date < b.date ? -1 : 1)) latest.set(p.socBucket, p);
+  [...latest.values()].sort((a,b)=> b.socBucket - a.socBucket).forEach(p => {
+    const row = document.createElement("div");
+    row.className = "ht-row";
+    row.innerHTML = `<span class="ht-b">${p.socBucket}–${p.socBucket+5}%</span>` +
+      `<span class="ht-v">${p.meanVoltage.toFixed(3)} V</span>` +
+      `<span class="ht-n">${p.samples} reading${p.samples===1?"":"s"} · ${p.date}</span>`;
+    box.appendChild(row);
+  });
+  const cap = document.createElement("p");
+  cap.className = "cap";
+  cap.style.marginTop = "9px";
+  cap.textContent = t.note || "";
+  box.appendChild(cap);
+}
+
+/* Both figures rest on one unmeasured input - the grid rate - so the rate is
+   printed rather than hidden, and the basis is stated. A dollar figure whose
+   arithmetic a reader cannot reproduce is a figure they are entitled to doubt. */
+function renderValue(s){
+  const kwh = n => (n === null || n === undefined) ? "—" : (n / 1000).toFixed(1);
+  $("#g-life").textContent  = kwh(s.gridEnergyAvoidedWattHours);
+  $("#g-today").textContent = kwh(s.gridEnergyAvoidedTodayWattHours);
+  $("#v-life").textContent  = (s.valueGeneratedUsd ?? 0).toFixed(2);
+  $("#v-today").textContent = (s.valueGeneratedTodayUsd ?? 0).toFixed(2);
+  $("#v-life-n").textContent = `over ${s.daysMonitored} day${s.daysMonitored === 1 ? "" : "s"}`;
+  $("#val-note").innerHTML =
+    `Counted on energy <strong>delivered to loads</strong> — not on everything the panel made, and not ` +
+    `including inverter overhead, neither of which would have appeared on a bill. ` +
+    `At <strong>$${s.gridRateUsdPerKwh.toFixed(2)}/kWh</strong>` +
+    (s.assumptions?.gridRateVerified ? "." :
+      ` — <em>a placeholder. Set GRID_RATE_USD_PER_KWH to the blended rate from a real bill and every figure here rescales.</em>`) +
+    (s.gridChargeEverSeen
+      ? ` The pack was charged from the grid ${s.daysSinceGridCharge} day${s.daysSinceGridCharge === 1 ? "" : "s"} ago, so some energy was bought, just not from the panel.`
+      : "");
+}
+
+function renderRiding(s){
+  const kwh = n => (n === null || n === undefined) ? "—" : (n / 1000).toFixed(1);
+  $("#r-commutes").textContent = s.commutesBanked ?? "—";
+  $("#r-commute-mi").textContent = `× ${s.assumptions?.commuteMiles ?? "—"} mi`;
+  $("#r-commutes-n").textContent = `round trips · ${s.assumptions?.pevSource || "commuter"}`;
+  $("#r-miles").textContent = fmt(s.milesEquivalentLifetime);
+  $("#r-today").textContent = fmt(s.milesEquivalentToday);
+  $("#r-days").textContent = s.daysSinceGridCharge ?? "—";
+  $("#r-days-n").textContent =
+    s.daysSinceGridChargeBasis === "monitoringStart" ? `since monitoring began (${s.daysMonitored} days)`
+    : s.daysSinceGridChargeBasis === "declared" ? "since last grid charge (configured date)"
+    : "since last grid charge";
+
+  $("#g-harvest").textContent = kwh(s.totalHarvestedWattHours);
+  $("#g-eff").textContent = s.systemEfficiencyPct ?? "—";
+  $("#g-eff-n").textContent = s.systemEfficiencyPct
+    ? "harvest → loads · rest is overhead"
+    : "harvest → loads";
+
+  const box = $("#pev-list");
+  const pevs = s.pevs;
+  if (!pevs?.length){ box.innerHTML = `<p class="cap">No PEV data.</p>`; return; }
+  box.innerHTML = pevs.map(p => {
+    const specs = [];
+    if (p.pack) specs.push(p.pack);
+    if (p.cells) specs.push(p.cells + " cells");
+    if (p.capacityWh) specs.push(fmt(p.capacityWh) + " Wh");
+    if (p.voltsNominal) specs.push(p.voltsNominal + "V nominal");
+    else if (p.voltsFull) specs.push(p.voltsFull + "V full");
+    if (p.motor) specs.push(p.motor);
+    if (p.controller) specs.push(p.controller);
+    const eff = p.whPerMile ? `${p.whPerMile} Wh/mi measured` : "";
+    const commute = (p.whPerMile && p.commuteMiles)
+      ? ` · ${p.commuteMiles} mi commute = ~${fmt(Math.round(p.whPerMile * p.commuteMiles))} Wh`
+      : "";
+    const charger = p.charger
+      ? `<span>${p.charger}${p.chargerWatts ? ` · ${p.chargerWatts} W` : ""}${p.chargerAmps ? ` @ ${p.chargerAmps} A` : ""}</span>`
+      : "";
+    const link = p.blogUrl
+      ? `<a class="pev-link" href="${p.blogUrl}">More →</a>`
+      : "";
+    const role = p.role ? ` · ${p.role}` : "";
+    return `<div class="pev">
+      <div><span class="pev-name">${p.name}</span> <span class="pev-type">— ${p.type}${role}</span></div>
+      <div class="pev-specs mono num">
+        ${specs.map(s => `<span>${s}</span>`).join("")}
+      </div>
+      ${eff ? `<div class="pev-specs"><span>${eff}${commute}</span></div>` : ""}
+      ${charger ? `<div class="pev-specs">${charger}</div>` : ""}
+      ${link}
+    </div>`;
+  }).join("");
+}
+
+function wireWindow(sel, apply){
+  document.querySelectorAll(`${sel} .btn`).forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll(`${sel} .btn`).forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); apply(Number(b.dataset.h)); load();
+    });
+  });
+}
+wireWindow("#windows",     h => { socHours = h; });
+wireWindow("#pow-windows", h => { powHours = h; });
+$("#refresh").addEventListener("click", load);
+
+load();
+setInterval(load, 60_000);
+</script>
+
+</body>
+</html>

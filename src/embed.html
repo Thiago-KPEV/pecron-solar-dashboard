@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__SITE_NAME__ — Solar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --accent:__EMBED_ACCENT__;
+  --ground:#F7F5F0; --card:#FFFFFF; --line:#E4DFD6; --line-soft:#EFEBE3;
+  --ink:#191D1D; --ink-2:#4C5654; --ink-3:#79817F;
+  --solar:#B06200; --load:#6D4EA0; --batt:#008E95;
+  --solar-fill:rgba(176,98,0,.14);
+  --ok:#1B7F4B;
+}
+:root[data-theme="dark"]{
+  --ground:#121615; --card:#1A1F1E; --line:#2C3433; --line-soft:#242B2A;
+  --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+  --solar:#C97A1A; --load:#8C79C9; --batt:#1F9AA1;
+  --solar-fill:rgba(201,122,26,.18);
+  --ok:#4FB07A;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#121615; --card:#1A1F1E; --line:#2C3433; --line-soft:#242B2A;
+    --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+    --solar:#C97A1A; --load:#8C79C9; --batt:#1F9AA1;
+    --solar-fill:rgba(201,122,26,.18);
+    --ok:#4FB07A;
+  }
+}
+:root[data-bg="transparent"] body{background:transparent}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--ground); color:var(--ink);
+  /* --font is set by ?font= so the widget can adopt the host site's typeface
+     instead of importing a second one onto the page. */
+  font-family:var(--font,Figtree),"Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{padding:18px}
+@media (min-width:640px){ .wrap{padding:22px} }
+
+.top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.top h1{font-size:17px;font-weight:800;letter-spacing:-.02em;margin:0}
+.top .age{
+  margin-left:auto;font-size:12px;color:var(--ink-3);
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.top .age i{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.top .age.stale i{background:var(--idle, #9A9A9A)}
+
+.hero{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-bottom:14px;
+}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 14px;
+}
+.stat .l{
+  font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);display:flex;align-items:center;gap:6px;
+}
+.stat .l i{width:8px;height:8px;border-radius:2px;flex:none}
+.stat .v{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-top:5px;display:flex;align-items:baseline;gap:3px}
+.stat .v u{font-size:12px;font-weight:600;color:var(--ink-2);text-decoration:none}
+.stat .n{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 15px 10px}
+.panel h2{font-size:13.5px;font-weight:700;margin:0}
+.panel .cap{font-size:11.5px;color:var(--ink-3);margin:2px 0 0}
+.phead{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.key{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
+.key i{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2);font-style:normal}
+.key i b{width:10px;height:3px;border-radius:2px;display:block}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.gridline{stroke:color-mix(in srgb,var(--ink) 9%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
+.axis{fill:var(--ink-3);font-size:9.5px}
+.nightlab{fill:var(--ink-3);font-size:9px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;opacity:.75}
+
+.foot{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px;
+}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.mini .l{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.mini .v{font-size:19px;font-weight:750;letter-spacing:-.02em;margin-top:3px}
+.mini .v em{font-style:normal;font-size:11px;font-weight:600;color:var(--ink-2)}
+
+.note{margin-top:11px;font-size:11px;color:var(--ink-3);line-height:1.5}
+.brand{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <h1>__SITE_NAME__ runs on <span class="brand">sunlight</span></h1>
+    <span class="age" id="age"><i></i><span id="age-t">loading…</span></span>
+  </div>
+
+  <div class="hero">
+    <div class="stat">
+      <div class="l"><i style="background:var(--solar)"></i>Generating now</div>
+      <div class="v"><span id="s-now">—</span><u>W</u></div>
+      <div class="n" id="s-now-n">__PANEL_WATTS__ W array</div>
+    </div>
+    <div class="stat">
+      <div class="l"><i style="background:var(--batt)"></i>Battery</div>
+      <div class="v"><span id="s-soc">—</span><u>%</u></div>
+      <div class="n" id="s-soc-n">__CAPACITY_KWH__ kWh pack</div>
+    </div>
+    <div class="stat">
+      <div class="l">Made today</div>
+      <div class="v"><span id="s-today">—</span><u>Wh</u></div>
+      <div class="n" id="s-today-n">since sunrise</div>
+    </div>
+    <div class="stat">
+      <div class="l">Commute powered</div>
+      <div class="v"><span id="s-miles">—</span><u>mi</u></div>
+      <div class="n">today's sun, in riding</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="phead">
+      <div>
+        <h2>Today and last night</h2>
+        <p class="cap" id="chart-cap">Sun in, loads out — the shaded stretch is when there was no sun</p>
+      </div>
+      <div class="key">
+        <i><b style="background:var(--solar)"></b>Solar in</i>
+        <i><b style="background:var(--load)"></b>Load</i>
+      </div>
+    </div>
+    <svg id="chart" viewBox="0 0 880 200" role="img" aria-label="Solar generation and load over the last 24 hours"></svg>
+  </div>
+
+  <div class="foot">
+    <div class="mini"><div class="l">Days since grid charge</div><div class="v" id="m-grid">—</div></div>
+    <div class="mini"><div class="l">Commutes banked</div><div class="v" id="m-commutes">—</div></div>
+    <div class="mini"><div class="l">Made all-time</div><div class="v" id="m-life">—</div></div>
+    <div class="mini"><div class="l">Best day</div><div class="v" id="m-best">—</div></div>
+    <div class="mini"><div class="l">Riding powered</div><div class="v" id="m-miles">—</div></div>
+  </div>
+
+  <p class="note" id="note">
+    Live from a __PANEL_WATTS__ W panel and a __CAPACITY_KWH__ kWh battery. Readings arrive every few minutes.
+  </p>
+</div>
+
+<script type="module">
+const P = new URLSearchParams(location.search);
+// Filled in by the Worker from wrangler.toml [vars] when the page is served.
+const PANEL = Number("__PANEL_WATTS__") || 400;
+const CAP_KWH = "__CAPACITY_KWH__";
+
+// Theme and accent are host-controlled: this widget follows the site it sits in
+// rather than imposing its own look.
+if (P.get("theme") === "light" || P.get("theme") === "dark") {
+  document.documentElement.dataset.theme = P.get("theme");
+}
+if (P.get("bg") === "transparent") document.documentElement.dataset.bg = "transparent";
+const accent = (P.get("accent") || "").replace(/[^0-9a-fA-F]/g, "");
+if (accent.length === 6) document.documentElement.style.setProperty("--accent", "#" + accent);
+
+/* ?font=Hanken+Grotesk — adopt the host site's typeface so the embed reads as
+   part of the page rather than a pasted-in panel. Sanitised to letters, digits
+   and spaces: the value is interpolated into a stylesheet URL, so it must not
+   be able to carry anything else. */
+const font = (P.get("font") || "").replace(/[^A-Za-z0-9 ]/g, "").trim().slice(0, 40);
+if (font) {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=" +
+    font.replace(/\s+/g, "+") + ":wght@400;500;600;700;800&display=swap";
+  document.head.appendChild(link);
+  document.documentElement.style.setProperty("--font", `"${font}"`);
+}
+
+const $ = s => document.querySelector(s);
+const fmt = n => n === null || n === undefined ? "—" : Math.round(n).toLocaleString("en-US");
+const SER = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+
+/* Tell the parent page how tall we are, so an iframe can size itself. Fires on
+   load, on resize, and after each data render - content height changes when the
+   stat grid rewraps. */
+function reportHeight(){
+  const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+  try { parent.postMessage({ solarEmbedHeight: h }, "*"); } catch {}
+}
+
+// The chart is sized to its rendered width, so a resize needs a redraw, not just
+// a re-measure. Debounced - resize fires continuously while a phone rotates.
+let resizeT;
+addEventListener("resize", () => {
+  clearTimeout(resizeT);
+  resizeT = setTimeout(() => { if (lastRows.length) draw(lastRows); reportHeight(); }, 150);
+});
+
+async function get(p){
+  const r = await fetch(p, { cache: "no-store" });
+  if (!r.ok) throw new Error(String(r.status));
+  return r.json();
+}
+
+const NS = "http://www.w3.org/2000/svg";
+const el = (t,a={}) => { const n=document.createElementNS(NS,t); for(const k in a) n.setAttribute(k,a[k]); return n; };
+const path = p => p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+const hhmm = d => String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+
+let lastRows = [];
+
+function draw(rows){
+  lastRows = rows;
+  const svg = $("#chart"); svg.textContent = "";
+  if (!rows.length) return;
+
+  /* Size the viewBox to the ACTUAL rendered width so one SVG unit is one CSS
+     pixel. With a fixed 880-unit box scaled into a 390 px phone, every bit of
+     text shrinks by the same factor - 9.5 px axis labels land at about 4 px and
+     become unreadable. Height stays fixed; the chart just gets narrower. */
+  const W = Math.max(280, Math.round(svg.getBoundingClientRect().width || 880));
+  const H = W < 520 ? 170 : 200;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+  const narrow = W < 520;
+  const pad = { l: narrow ? 32 : 40, r: 10, t: 14, b: 24 };
+  const t0=Date.parse(rows[0].captured_at), t1=Date.parse(rows.at(-1).captured_at);
+  const span=Math.max(1,t1-t0);
+  const peak=Math.max(120,...rows.map(r=>Math.max(r.solar_w||0,(r.ac_out_w||0)+(r.dc_out_w||0))));
+  const yMax=Math.ceil(peak/100)*100;
+  const x=t=>pad.l+(t-t0)/span*(W-pad.l-pad.r);
+  const y=v=>H-pad.b-(v/yMax)*(H-pad.t-pad.b);
+
+  // Shade the hours with no generation. Showing when the system runs on the
+  // battery alone is the point of the chart - not an absence to be hidden.
+  let runStart=null;
+  rows.forEach((r,i)=>{
+    const dark=(r.solar_w||0)<=2;
+    const t=Date.parse(r.captured_at);
+    if(dark && runStart===null) runStart=t;
+    if((!dark||i===rows.length-1) && runStart!==null){
+      const w=x(t)-x(runStart);
+      if(w>18){
+        svg.appendChild(el("rect",{x:x(runStart),y:pad.t,width:w,height:H-pad.t-pad.b,
+          fill:"color-mix(in srgb, var(--ink) 5%, transparent)"}));
+        // Only label the band if the text actually fits inside it.
+        if(w > (narrow ? 74 : 90)) svg.appendChild(Object.assign(
+          el("text",{x:x(runStart)+w/2,y:pad.t+13,class:"nightlab","text-anchor":"middle"}),
+          {textContent:"no sun"}));
+      }
+      runStart=null;
+    }
+  });
+
+  [0,yMax/2,yMax].forEach(v=>{
+    svg.appendChild(el("line",{x1:pad.l,x2:W-pad.r,y1:y(v),y2:y(v),class:"gridline"}));
+    svg.appendChild(Object.assign(el("text",{x:pad.l-7,y:y(v)+3.5,class:"axis","text-anchor":"end"}),
+      {textContent:Math.round(v)+(v===yMax?" W":"")}));
+  });
+  // Fewer time labels on a narrow chart, and pin the outer two to the edges so
+  // they cannot overflow the viewBox.
+  const ticks = narrow ? 2 : 4;
+  for(let i=0;i<=ticks;i++){
+    const t=t0+span*i/ticks;
+    const anchor = i===0 ? "start" : i===ticks ? "end" : "middle";
+    svg.appendChild(Object.assign(
+      el("text",{x:x(t),y:H-pad.b+14,class:"axis","text-anchor":anchor}),
+      {textContent:hhmm(new Date(t))}));
+  }
+
+  const sp=rows.map(r=>[x(Date.parse(r.captured_at)),y(r.solar_w||0)]);
+  svg.appendChild(el("path",{d:path(sp)+`L${sp.at(-1)[0]} ${y(0)}L${sp[0][0]} ${y(0)}Z`,fill:"var(--solar-fill)"}));
+  svg.appendChild(el("path",{d:path(sp),fill:"none",stroke:SER("--solar"),"stroke-width":2,
+    "stroke-linejoin":"round","vector-effect":"non-scaling-stroke"}));
+  const lp=rows.map(r=>[x(Date.parse(r.captured_at)),y((r.ac_out_w||0)+(r.dc_out_w||0))]);
+  svg.appendChild(el("path",{d:path(lp),fill:"none",stroke:SER("--load"),"stroke-width":2,
+    "stroke-linejoin":"round","vector-effect":"non-scaling-stroke"}));
+}
+
+async function load(){
+  try{
+    const [latest, health, summary] = await Promise.all([
+      get("/api/latest"), get("/api/health"), get("/api/summary"),
+    ]);
+
+    $("#s-now").textContent = fmt(latest.solar_w);
+    $("#s-now-n").textContent = latest.solar_w > 0
+      ? `${Math.round(latest.solar_w/PANEL*100)}% of the ${PANEL} W array` : "resting";
+    $("#s-soc").textContent = fmt(latest.soc);
+    $("#s-soc-n").textContent = (latest.powerWatts ?? 0) > 0 ? "charging from the sun" : "powering loads";
+
+  /* Reserve remaining deliberately lives on the dashboard, not here. This is the
+     public surface: a runtime figure swings by an order of magnitude when a
+     load changes, and it reads as a countdown rather than a boast. The curious
+     get it at /, the full dashboard. */
+    $("#s-today").textContent = fmt(summary.todayHarvestWattHours);
+    $("#s-miles").textContent = fmt(summary.milesEquivalentToday);
+
+    const dg = summary.daysSinceGridCharge;
+    $("#m-grid").innerHTML = dg === null ? "—" : `${dg} <em>day${dg === 1 ? "" : "s"}</em>`;
+    // Rounded DOWN, not to nearest: claiming a commute that has not been fully
+  // banked is the one way this figure could be called a lie, and "2" is a
+  // stronger thing to say than "2.1" anyway.
+  const cb = summary.commutesBanked;
+  $("#m-commutes").innerHTML = (cb === null || cb === undefined)
+    ? "—"
+    : `${Math.floor(cb)} <em>× ${summary.assumptions?.commuteMiles ?? "—"} mi</em>`;
+  $("#m-life").innerHTML = `${(summary.lifetimeHarvestWattHours/1000).toFixed(1)} <em>kWh</em>`;
+    $("#m-best").innerHTML = `${(summary.bestDayWattHours/1000).toFixed(2)} <em>kWh</em>`;
+    $("#m-miles").innerHTML = `${fmt(summary.milesEquivalentLifetime)} <em>mi</em>`;
+
+    const a = health.lastSampleAgeMinutes;
+    $("#age-t").textContent = a === null || a === undefined ? "no reading"
+      : health.stale ? "live reading paused"
+      : a < 1 ? "updated just now" : `updated ${a} min ago`;
+    $("#age").classList.toggle("stale", !!health.stale);
+
+    /* Never tell a visitor the sun is charging the battery off an old row. When
+       the feed is stale the "now" figures go blank; the history totals below
+       are still true and stay. */
+    if (health.stale) {
+      $("#s-now").textContent = "—";
+      $("#s-now-n").textContent = "reading paused";
+      $("#s-soc-n").textContent = "at last reading";
+    }
+
+    const pevs = (summary.pevs || []).filter(p => p && p.name);
+    const pevNote = pevs.length
+      ? pevs.map(p => `${p.name}${p.whPerMile ? ` (${p.whPerMile} Wh/mi)` : ""}`).join(" and ")
+      : "";
+    $("#note").textContent =
+      `Live from a ${PANEL} W panel and a ${CAP_KWH} kWh battery. Readings arrive every few minutes.` +
+      (pevNote ? ` Riding figures are based on the ${pevNote}.` : "");
+  }catch(e){ $("#age-t").textContent = "offline"; }
+
+  try{
+    const h = await get("/api/history?hours=24");
+    draw(h.samples.filter(r => r.soc !== null));
+  }catch(e){}
+
+  reportHeight();
+}
+
+load();
+setInterval(load, 120_000);
+</script>
+</body>
+</html>

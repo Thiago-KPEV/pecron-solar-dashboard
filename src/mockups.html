@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>__SITE_NAME__ · Metric Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --brand:#2E7D5B; --brand-deep:#163F2E; --accent:#E2622C;
+  --ground:#F7F5F0; --card:#FFFFFF; --card-2:#FBFAF7;
+  --line:#E4DFD6; --line-soft:#EFEBE3;
+  --ink:#191D1D; --ink-2:#4C5654; --ink-3:#79817F;
+  --solar:#B06200; --load:#6D4EA0; --batt:#008E95;
+  --solar-fill:rgba(176,98,0,.14); --batt-fill:rgba(0,142,149,.12);
+  --ok:#1B7F4B; --ok-bg:rgba(27,127,75,.10);
+  --warn:#B06200; --warn-bg:rgba(176,98,0,.10);
+  --shadow:0 1px 2px rgba(25,29,29,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --brand:#3E9A70; --brand-deep:#0B2219; --accent:#F0784A;
+  --ground:#101413; --card:#181D1C; --card-2:#141918;
+  --line:#2A3231; --line-soft:#222928;
+  --ink:#EDEFEE; --ink-2:#AAB4B2; --ink-3:#7E8886;
+  --solar:#C97A1A; --load:#8C79C9; --batt:#1F9AA1;
+  --solar-fill:rgba(201,122,26,.18); --batt-fill:rgba(31,154,161,.16);
+  --ok:#4FB07A; --ok-bg:rgba(79,176,122,.14);
+  --warn:#C97A1A; --warn-bg:rgba(201,122,26,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Figtree,"Segoe UI",system-ui,sans-serif;font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+
+.top{background:var(--brand-deep);color:#fff;padding:30px 0 26px}
+.top .in{max-width:1080px;margin:0 auto;padding:0 22px}
+.logo{display:inline-block;border:2px solid #fff;border-radius:7px;padding:3px 9px;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.top h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.03em;margin:14px 0 8px}
+.top p{opacity:.82;margin:0;max-width:62ch;font-size:15px}
+
+.wrap{max-width:1080px;margin:0 auto;padding:24px 22px 80px}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0 6px;font-size:13px;color:var(--ink-2)}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;
+  font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
+.badge.live{color:var(--ok);background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 32%,transparent)}
+.badge.proj{color:var(--warn);background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 32%,transparent)}
+.badge.hw{color:var(--ink-3);background:var(--card-2);border-color:var(--line)}
+
+h2{font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+  margin:40px 0 4px;padding-top:22px;border-top:1px solid var(--line)}
+h2:first-of-type{border-top:0;padding-top:0}
+.sub{color:var(--ink-2);font-size:14.5px;margin:0 0 16px;max-width:74ch}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid.wide{grid-template-columns:1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px 14px;box-shadow:var(--shadow)}
+.card h3{font-size:15px;font-weight:750;margin:0;letter-spacing:-.01em}
+.chead{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.chead .badge{margin-left:auto;flex:none}
+.why{font-size:12.5px;color:var(--ink-3);margin:10px 0 0;line-height:1.5}
+
+.big{font-size:44px;font-weight:900;letter-spacing:-.04em;line-height:1;display:flex;align-items:baseline;gap:5px}
+.big u{font-size:15px;font-weight:650;color:var(--ink-2);text-decoration:none}
+.sup{font-size:13px;color:var(--ink-3);margin-top:5px}
+.rowstat{display:flex;gap:22px;flex-wrap:wrap}
+.rowstat div .k{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.rowstat div .v{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+
+svg{display:block;width:100%;height:auto;overflow:visible}
+.ax{fill:var(--ink-3);font-size:9.5px;font-family:"IBM Plex Mono",monospace}
+.gl{stroke:color-mix(in srgb,var(--ink) 10%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
+.lbl{fill:var(--ink-2);font-size:11px;font-weight:650}
+
+.bar{height:9px;border-radius:5px;background:var(--line-soft);overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;border-radius:5px}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink-3);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="in">
+    <span class="logo">__SITE_NAME__</span>
+    <h1>What else this data can show</h1>
+    <p>Metric concepts sorted by where they'd live. Everything here derives from data already being collected — nothing needs new sensors unless marked otherwise.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="legend">
+    <span><span class="badge live">Live</span> real numbers, updating now</span>
+    <span><span class="badge proj">Projected</span> real shape, simulated span — needs weeks of data</span>
+    <span><span class="badge hw">Needs hardware</span> requires a local device or sub-metering</span>
+  </div>
+
+  <!-- ============ MARKETING ============ -->
+  <h2>For a public website — casual visitors</h2>
+  <p class="sub">Ten seconds of attention, no explanation available. Every figure has to be legible cold and impressive without stretching.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="chead"><h3>Commutes banked</h3><span class="badge live">Live</span></div>
+      <div class="big"><span id="m-commutes">—</span></div>
+      <div class="sup">round trips to work, powered by sun</div>
+      <div class="bar"><i id="m-commute-bar" style="background:var(--solar);width:0%"></i></div>
+      <p class="why">Better than raw miles. "Two commutes ridden on sunlight" is a fact someone can hold; "68 miles" needs converting before it means anything.</p>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h3>Days since grid charge</h3><span class="badge live">Live</span></div>
+      <div class="big"><span id="m-grid">—</span><u>days</u></div>
+      <div class="sup">since the battery last charged from the grid</div>
+      <p class="why">A streak counter for a battery that lives on solar. Gets more impressive by doing nothing, which is the best kind of metric.</p>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h3>Lifetime generated</h3><span class="badge live">Live</span></div>
+      <div class="big"><span id="m-life">—</span><u>kWh</u></div>
+      <div class="sup" id="m-life-sup">since monitoring began</div>
+      <svg id="c-cume" viewBox="0 0 400 90" role="img" aria-label="Cumulative energy generated since monitoring began"></svg>
+      <p class="why">The number that only ever goes up. Pairs well with a "since" date — it quietly communicates how long this has been running.</p>
+    </div>
+  </div>
+
+  <!-- ============ PUBLIC DASHBOARD ============ -->
+  <h2>For the public dashboard — the curious</h2>
+  <p class="sub">Same audience, but they clicked through. These reward a second look and are still honest about the system's limits.</p>
+
+  <div class="grid wide">
+    <div class="card">
+      <div class="chead"><h3>Generation heatmap — when the sun actually reaches the panel</h3><span class="badge live">Live</span></div>
+      <svg id="c-heat" viewBox="0 0 900 250" role="img" aria-label="Heatmap of solar generation by hour and day, showing the shaded morning and afternoon edges"></svg>
+      <p class="why"><strong>The most informative chart here.</strong> Hours down, days across. If something shades the panel in the morning or afternoon, those edges show up as hard boundaries rather than a guess. Over months it also shows them <em>drift</em> as the sun's angle changes through the year — the difference between "something shades us" and knowing exactly what it costs, month by month.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="chead"><h3>Peak sun hours</h3><span class="badge live">Live</span></div>
+      <div class="rowstat">
+        <div><div class="k">Best day</div><div class="v"><span id="m-pshb">—</span> h</div></div>
+        <div><div class="k">Regional norm</div><div class="v" style="color:var(--ink-3)" id="m-pshn">—</div></div>
+      </div>
+      <svg id="c-psh" viewBox="0 0 400 74" role="img" aria-label="Peak sun hours achieved against the regional average"></svg>
+      <p class="why">Daily harvest divided by panel rating — the standard solar yardstick. It makes this array comparable to any other, and quantifies what shading or orientation costs. Set <span class="mono">peakSunHoursNorm</span> in site.config.js to compare against your region. It is the figure that settles an argument about relocating the panel.</p>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h3>Self-sufficiency</h3><span class="badge live">Live</span></div>
+      <div class="big"><span id="m-self">—</span><u>%</u></div>
+      <div class="sup">of load met by sun as it arrived</div>
+      <div class="bar"><i id="m-self-bar" style="background:var(--batt);width:0%"></i></div>
+      <p class="why">Distinguishes "the sun ran the loads" from "the battery ran them and the sun refilled it later". A system can be net-positive over a day while running almost entirely off storage — this separates the two.</p>
+    </div>
+  </div>
+
+  <!-- ============ OPERATIONS ============ -->
+  <h2>For the operator — internal</h2>
+  <p class="sub">Operational. None of this is for outside eyes, and it's where the engineering value sits.</p>
+
+  <div class="grid wide">
+    <div class="card">
+      <div class="chead"><h3>Overhead trend — the early warning</h3><span class="badge live">Live</span></div>
+      <svg id="c-oh" viewBox="0 0 900 190" role="img" aria-label="Daily system overhead over the last two weeks"></svg>
+      <p class="why">Inverter idle and conversion loss, as a line rather than a daily figure. Its <em>slope</em> is the signal: a slow creep upward means something got left on or something is degrading, and a step down shows a change that worked. <strong>Probably keep this one private</strong> — "our solar system loses 300 Wh a day" is true, useful, and terrible marketing.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="chead"><h3>Pack life consumed</h3><span class="badge live">Live</span></div>
+      <svg id="c-cyc" viewBox="0 0 320 160" role="img" aria-label="Equivalent full charge cycles used against the pack's rated life"></svg>
+      <p class="why">Cumulative energy discharged divided by pack capacity — the honest measure of battery wear, far better than counting days. At the current rate you can project a replacement year rather than being surprised by one.</p>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h3>Pack health drift</h3><span class="badge proj">Projected</span></div>
+      <svg id="c-health" viewBox="0 0 400 160" role="img" aria-label="Resting voltage at a fixed state of charge over time, as an ageing indicator"></svg>
+      <p class="why">Resting voltage at a <em>fixed</em> charge level, tracked over months. When the line sags, the pack is ageing. Comparisons are only valid within a charge bucket — averaging across them would show a pack "improving" whenever a day happened to sit at a higher charge.</p>
+    </div>
+  </div>
+
+  <!-- ============ NEEDS HARDWARE ============ -->
+  <h2>With extra metering hardware</h2>
+  <p class="sub">The battery reports totals only. Attributing energy to a fan or a bike charger from those totals means watching numbers move right after something is switched on — that's inference, and it won't answer "what does a bike charge actually cost".</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="chead"><h3>Where the energy went</h3><span class="badge hw">Needs hardware</span></div>
+      <svg id="c-load" viewBox="0 0 400 170" role="img" aria-label="Illustrative breakdown of daily consumption by individual load"></svg>
+      <p class="why">Illustrative, not measured. With seconds-resolution polling, loads become separable by their power signature; with cheap metering plugs they're measured outright. This turns one "delivered 430 Wh" figure into an itemised list — and gives a real number for a bike charge instead of an estimate.</p>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h3>Bike charge sessions</h3><span class="badge hw">Needs hardware</span></div>
+      <div class="rowstat" style="margin-bottom:10px">
+        <div><div class="k">Last charge</div><div class="v">0.82 kWh</div></div>
+        <div><div class="k">Per mile</div><div class="v">41.6 Wh</div></div>
+      </div>
+      <svg id="c-sess" viewBox="0 0 400 110" role="img" aria-label="Illustrative log of individual bike charging sessions and their energy"></svg>
+      <p class="why">Illustrative. Detecting and logging each charge would replace the <em>estimated</em> charging efficiency with a measured one — and validate the Wh/mile figure the public miles counter rests on. It's the shortest path to making that number entirely measured.</p>
+    </div>
+  </div>
+
+  <!-- ============ ASSUMPTION-DEPENDENT ============ -->
+  <h2>Judgement calls — these carry assumptions</h2>
+  <p class="sub">Both are one multiplication from data already held. Both invite argument. Worth seeing before deciding whether they read as earned or as greenwashing.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="chead"><h3>Value generated</h3><span class="badge proj">Assumption</span></div>
+      <div class="big">$<span id="m-value">—</span></div>
+      <div class="sup" id="m-value-sup">at your configured grid rate</div>
+      <p class="why">Honest but small, and it stays small: a few dollars a week on a small system. The real return is often convenience or resilience rather than the electricity price, and that story can be stronger without a dollar sign on it.</p>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h3>Grid energy avoided</h3><span class="badge proj">Assumption</span></div>
+      <div class="big"><span id="m-co2">—</span><u>kg CO₂e</u></div>
+      <div class="sup" id="m-co2-sup">set gridCo2KgPerKwh in site.config.js</div>
+      <p class="why">Defensible, since grid emissions factors are published and the kWh are measured. But on a small panel the figure is modest, and the bigger emissions story is usually the vehicles themselves. Include it if it fits the page; don't lead with it.</p>
+    </div>
+  </div>
+
+  <p class="foot">Live figures read from the same API as the monitor. Projected panels use simulated spans to show shape — they are labelled, and none of them are claims about what has been measured.</p>
+</div>
+
+<script type="module">
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const el = (t,a={}) => { const n=document.createElementNS(NS,t); for(const k in a) n.setAttribute(k,a[k]); return n; };
+const SER = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const path = p => p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+const fmt = n => n==null ? "—" : Number(n).toLocaleString("en-US");
+
+async function get(p){ const r = await fetch(p,{cache:"no-store"}); if(!r.ok) throw new Error(r.status); return r.json(); }
+
+// Filled in by the Worker from site.config.js when the page is served; empty
+// means "not configured" and the comparison is hidden.
+const PSH_NORM = Number("__PSH_NORM__") || null;
+const CO2_FACTOR = Number("__CO2_KG_PER_KWH__") || null;
+
+/* Size every viewBox to its rendered width so one unit is one CSS pixel -
+   otherwise text shrinks by the scale factor on a narrow screen. */
+function fit(svg, h){
+  const W = Math.max(260, Math.round(svg.getBoundingClientRect().width || 400));
+  svg.setAttribute("viewBox", `0 0 ${W} ${h}`);
+  return W;
+}
+
+/* ---------------------------------------------------------- heatmap ---- */
+function drawHeat(data){
+  const svg=$("#c-heat"); svg.textContent="";
+  const hours=[...Array(24).keys()].filter(h=>h>=4&&h<=20);
+  const days=data.days;
+  if(!days.length) return;
+  const H=250, W=fit(svg,H);
+  const padL=34, padT=16, padB=42;   // room for date labels AND the caption
+  // Cap the cell width. With only a few days, letting columns fill the width
+  // stretches each into a fat bar and the thing stops reading as a grid at all.
+  // Capped, it looks like a heatmap on day three and grows into the space.
+  const cw=Math.min(34,(W-padL-8)/Math.max(1,days.length)), ch=(H-padT-padB)/hours.length;
+  const peak=Math.max(1,data.peakWatts);
+  const map=new Map(data.cells.map(c=>[c.date+"|"+c.hour,c.avgWatts]));
+
+  hours.forEach((hr,i)=>{
+    if(hr%2===0) svg.appendChild(Object.assign(
+      el("text",{x:padL-6,y:padT+i*ch+ch/2+3,class:"ax","text-anchor":"end"}),{textContent:String(hr).padStart(2,"0")}));
+    days.forEach((d,j)=>{
+      const v=map.get(d+"|"+hr)||0;
+      const t=v/peak;
+      svg.appendChild(el("rect",{
+        x:padL+j*cw+1, y:padT+i*ch+1, width:Math.max(1,cw-2), height:Math.max(1,ch-2), rx:2,
+        fill: t<0.02 ? "color-mix(in srgb, var(--ink) 5%, transparent)" : SER("--solar"),
+        "fill-opacity": t<0.02 ? 1 : (0.18+0.82*t)
+      }));
+    });
+  });
+  days.forEach((d,j)=>{
+    svg.appendChild(Object.assign(el("text",{x:padL+j*cw+cw/2,y:H-padB+15,class:"ax","text-anchor":"middle"}),
+      {textContent:d.slice(5)}));
+  });
+  svg.appendChild(Object.assign(el("text",{x:padL,y:H-4,class:"ax"}),
+    {textContent: days.length < 10
+      ? `darker = more watts · peak ${data.peakWatts} W · ${days.length} days so far, fills in as it runs`
+      : `darker = more watts · peak ${data.peakWatts} W · hours down, days across`}));
+}
+
+/* ------------------------------------------------------ cumulative ---- */
+function drawCume(days){
+  const svg=$("#c-cume"); svg.textContent="";
+  const H=90, W=fit(svg,H);
+  let cum=0; const pts=days.map((d,i)=>{ cum+=d.harvestWattHours||0; return [i,cum]; });
+  const max=Math.max(1,cum);
+  const x=i=>8+(i/Math.max(1,pts.length-1))*(W-16), y=v=>H-14-(v/max)*(H-28);
+  const p=pts.map(q=>[x(q[0]),y(q[1])]);
+  svg.appendChild(el("path",{d:path(p)+`L${x(pts.length-1)} ${y(0)}L${x(0)} ${y(0)}Z`,fill:"var(--solar-fill)"}));
+  svg.appendChild(el("path",{d:path(p),fill:"none",stroke:SER("--solar"),"stroke-width":2,"vector-effect":"non-scaling-stroke"}));
+  svg.appendChild(el("circle",{cx:x(pts.length-1),cy:y(cum),r:4,fill:SER("--solar"),stroke:"var(--card)","stroke-width":2}));
+}
+
+/* ------------------------------------------------------------- PSH ---- */
+function drawPsh(best){
+  const svg=$("#c-psh"); svg.textContent="";
+  const H=74, W=fit(svg,H);
+  const norm=PSH_NORM, max=Math.max(6.5,(norm||0)*1.15,best*1.15);
+  const bw=W-90;
+  const row=(y,val,color,label)=>{
+    svg.appendChild(el("rect",{x:78,y,width:bw,height:16,rx:8,fill:"var(--line-soft)"}));
+    svg.appendChild(el("rect",{x:78,y,width:Math.max(4,bw*(val/max)),height:16,rx:8,fill:color}));
+    svg.appendChild(Object.assign(el("text",{x:72,y:y+12,class:"lbl","text-anchor":"end"}),{textContent:label}));
+    svg.appendChild(Object.assign(el("text",{x:78+bw*(val/max)+7,y:y+12,class:"ax"}),{textContent:val.toFixed(1)+" h"}));
+  };
+  row(12,best,SER("--solar"),"your best");
+  if (norm) row(42,norm,SER("--ink-3"),"regional");
+}
+
+/* -------------------------------------------------------- overhead ---- */
+function drawOverhead(days){
+  const svg=$("#c-oh"); svg.textContent="";
+  const H=190, W=fit(svg,H);
+  const padL=44,padR=12,padT=16,padB=28;
+  const vals=days.map(d=>d.overheadWattHours||0);
+  // Round the axis to a readable step - a raw 1.15x headroom gives ticks like
+  // 601 and 1203, which nobody reads as a scale.
+  const max=Math.ceil((Math.max(200,...vals)*1.15)/250)*250;
+  const x=i=>padL+(i/Math.max(1,days.length-1))*(W-padL-padR);
+  const y=v=>H-padB-(v/max)*(H-padT-padB);
+  [0,max/2,max].forEach(v=>{
+    svg.appendChild(el("line",{x1:padL,x2:W-padR,y1:y(v),y2:y(v),class:"gl"}));
+    svg.appendChild(Object.assign(el("text",{x:padL-7,y:y(v)+3.5,class:"ax","text-anchor":"end"}),{textContent:Math.round(v)}));
+  });
+  const p=days.map((d,i)=>[x(i),y(d.overheadWattHours||0)]);
+  svg.appendChild(el("path",{d:path(p),fill:"none",stroke:SER("--solar"),"stroke-width":2.5,"stroke-linejoin":"round","vector-effect":"non-scaling-stroke"}));
+  days.forEach((d,i)=>{
+    svg.appendChild(el("circle",{cx:x(i),cy:y(d.overheadWattHours||0),r:4,fill:SER("--solar"),stroke:"var(--card)","stroke-width":2}));
+    svg.appendChild(Object.assign(el("text",{x:x(i),y:H-padB+15,class:"ax","text-anchor":"middle"}),{textContent:d.date.slice(5)}));
+    svg.appendChild(Object.assign(el("text",{x:x(i),y:y(d.overheadWattHours||0)-11,class:"lbl","text-anchor":"middle"}),
+      {textContent:fmt(d.overheadWattHours)}));
+  });
+}
+
+/* ---------------------------------------------------------- cycles ---- */
+function drawCycles(used, rated){
+  const svg=$("#c-cyc"); svg.textContent="";
+  const H=160, W=fit(svg,H);
+  const cx=W/2, cy=112, r=68;
+  const arc=(frac,color,width)=>{
+    const a0=Math.PI, a1=Math.PI+Math.PI*Math.min(1,frac);
+    const large=frac>0.5?1:0;
+    const p=`M ${cx+r*Math.cos(a0)} ${cy+r*Math.sin(a0)} A ${r} ${r} 0 ${large} 1 ${cx+r*Math.cos(a1)} ${cy+r*Math.sin(a1)}`;
+    svg.appendChild(el("path",{d:p,fill:"none",stroke:color,"stroke-width":width,"stroke-linecap":"round"}));
+  };
+  arc(1,"var(--line-soft)",13);
+  arc(Math.max(used/rated,0.004),SER("--batt"),13);
+  svg.appendChild(Object.assign(el("text",{x:cx,y:cy-14,"text-anchor":"middle",
+    style:"fill:var(--ink);font-size:30px;font-weight:800;letter-spacing:-.03em"}),{textContent:used.toFixed(2)}));
+  svg.appendChild(Object.assign(el("text",{x:cx,y:cy+8,class:"ax","text-anchor":"middle"}),
+    {textContent:`of ${fmt(rated)} rated cycles`}));
+  svg.appendChild(Object.assign(el("text",{x:cx,y:cy+30,class:"lbl","text-anchor":"middle"}),
+    {textContent:((used/rated)*100).toFixed(2)+"% used"}));
+}
+
+/* ---------------------------------------------------------- health ---- */
+function drawHealth(){
+  const svg=$("#c-health"); svg.textContent="";
+  const H=160, W=fit(svg,H);
+  const padL=40,padR=12,padT=14,padB=26;
+  // Illustrative 18-month span: a real pack sags slowly at fixed charge.
+  const n=18, base=53.20;
+  const pts=[...Array(n).keys()].map(i=>[i, base - i*0.011 + (i%3-1)*0.004]);
+  const lo=52.95, hi=53.28;
+  const x=i=>padL+(i/(n-1))*(W-padL-padR);
+  const y=v=>H-padB-((v-lo)/(hi-lo))*(H-padT-padB);
+  [lo,(lo+hi)/2,hi].forEach(v=>{
+    svg.appendChild(el("line",{x1:padL,x2:W-padR,y1:y(v),y2:y(v),class:"gl"}));
+    svg.appendChild(Object.assign(el("text",{x:padL-6,y:y(v)+3.5,class:"ax","text-anchor":"end"}),{textContent:v.toFixed(2)}));
+  });
+  svg.appendChild(el("path",{d:path(pts.map(p=>[x(p[0]),y(p[1])])),fill:"none",
+    stroke:SER("--batt"),"stroke-width":2,"vector-effect":"non-scaling-stroke"}));
+  svg.appendChild(Object.assign(el("text",{x:padL,y:H-6,class:"ax"}),{textContent:"18 months, resting volts at 80% charge"}));
+}
+
+/* ------------------------------------------------------ load split ---- */
+function drawLoad(){
+  const svg=$("#c-load"); svg.textContent="";
+  const H=170, W=fit(svg,H);
+  const items=[["Fan",470,"--solar"],["Bike charge",820,"--load"],["Router",264,"--batt"],["Other",180,"--ink-3"]];
+  const total=items.reduce((a,b)=>a+b[1],0);
+  let yy=14;
+  items.forEach(([name,wh,col])=>{
+    const w=(W-150)*(wh/total);
+    svg.appendChild(el("rect",{x:118,y:yy,width:Math.max(3,w),height:20,rx:5,fill:SER(col)}));
+    svg.appendChild(Object.assign(el("text",{x:110,y:yy+15,class:"lbl","text-anchor":"end"}),{textContent:name}));
+    svg.appendChild(Object.assign(el("text",{x:118+w+8,y:yy+15,class:"ax"}),{textContent:wh+" Wh"}));
+    yy+=34;
+  });
+  svg.appendChild(Object.assign(el("text",{x:118,y:H-6,class:"ax"}),{textContent:"illustrative split of one day's consumption"}));
+}
+
+/* -------------------------------------------------------- sessions ---- */
+function drawSessions(){
+  const svg=$("#c-sess"); svg.textContent="";
+  const H=110, W=fit(svg,H);
+  const vals=[0.79,0.84,0,0.81,0.86,0.82,0];
+  const labels=["M","T","W","T","F","S","S"];
+  const bw=(W-30)/vals.length;
+  const max=1.0;
+  vals.forEach((v,i)=>{
+    const h=(v/max)*(H-42);
+    if(v>0) svg.appendChild(el("rect",{x:16+i*bw+4,y:H-28-h,width:bw-12,height:h,rx:4,fill:SER("--load")}));
+    svg.appendChild(Object.assign(el("text",{x:16+i*bw+bw/2-2,y:H-12,class:"ax","text-anchor":"middle"}),{textContent:labels[i]}));
+  });
+  svg.appendChild(Object.assign(el("text",{x:16,y:14,class:"ax"}),{textContent:"kWh per charge, one week — illustrative"}));
+}
+
+/* ------------------------------------------------------------ load ---- */
+let cache={};
+async function load(){
+  try{
+    const [s, d, hourly] = await Promise.all([
+      get("/api/summary"), get("/api/daily?days=14"), get("/api/hourly?days=14"),
+    ]);
+    cache={s,d,hourly};
+
+    $("#m-commutes").textContent = s.commutesBanked ?? "—";
+    $("#m-commute-bar").style.width = Math.min(100,((s.commutesBanked||0)%1)*100 || 100) + "%";
+    $("#m-grid").textContent = s.daysSinceGridCharge ?? "—";
+    $("#m-life").textContent = ((s.lifetimeHarvestWattHours||0)/1000).toFixed(1);
+    $("#m-life-sup").textContent = `over ${s.daysMonitored} days of monitoring`;
+    $("#m-pshb").textContent = (s.peakSunHoursBest ?? 0).toFixed(1);
+    $("#m-self").textContent = s.selfSufficiencyPct ?? "—";
+    $("#m-self-bar").style.width = (s.selfSufficiencyPct||0) + "%";
+    $("#m-pshn").textContent = PSH_NORM ? `~${PSH_NORM} h` : "not set";
+    const rate = s.gridRateUsdPerKwh ?? 0;
+    $("#m-value").textContent = (((s.lifetimeHarvestWattHours||0)/1000)*rate).toFixed(2);
+    $("#m-value-sup").textContent = `at $${rate.toFixed(2)}/kWh — ` +
+      (s.assumptions?.gridRateVerified ? "your configured rate" : "placeholder rate, set your own");
+    if (CO2_FACTOR) {
+      $("#m-co2").textContent = (((s.lifetimeHarvestWattHours||0)/1000)*CO2_FACTOR).toFixed(2);
+      $("#m-co2-sup").textContent = `at ${CO2_FACTOR} kg/kWh — your configured grid factor`;
+    }
+
+    drawCume(d.days);
+    drawPsh(s.peakSunHoursBest ?? 0);
+    drawOverhead(d.days);
+    drawCycles(s.equivalentFullCycles ?? 0, s.ratedCycles ?? 3500);
+    drawHeat(hourly);
+  }catch(e){ /* leave placeholders rather than showing wrong numbers */ }
+  drawHealth(); drawLoad(); drawSessions();
+}
+
+let rt;
+addEventListener("resize", ()=>{ clearTimeout(rt); rt=setTimeout(()=>{
+  if(cache.d){ drawCume(cache.d.days); drawPsh(cache.s.peakSunHoursBest??0);
+    drawOverhead(cache.d.days); drawCycles(cache.s.equivalentFullCycles??0,cache.s.ratedCycles??3500);
+    drawHeat(cache.hourly); }
+  drawHealth(); drawLoad(); drawSessions();
+},150); });
+
+load();
+</script>
+</body>
+</html>
