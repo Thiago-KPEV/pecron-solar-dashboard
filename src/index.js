@@ -1149,9 +1149,8 @@ async function sendControl(env, code, value) {
 
 function controlAuthorized(request, env) {
   const expected = env.CONTROL_TOKEN;
-  // Fail CLOSED. authorized() treats an unset token as "open", which is
-  // reasonable for reads and unacceptable here - a missing secret must never
-  // mean the outputs are switchable by anyone who finds the URL.
+  // Fail CLOSED: a missing secret must never mean the outputs are switchable
+  // by anyone who finds the URL.
   if (!expected) return false;
   // Trim both sides. Piping a value into `wrangler secret put` appends a
   // newline in most shells, and the stored secret then never matches a
