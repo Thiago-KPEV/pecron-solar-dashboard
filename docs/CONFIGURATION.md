@@ -77,7 +77,7 @@ Email alerts are only sent when `MAILGUN_API_KEY` (secret), `MAILGUN_DOMAIN` and
 | `PECRON_PASSWORD` | Yes | Your Pecron app password. |
 | `PECRON_SECRET_US` / `PECRON_SECRET_EU` / `PECRON_SECRET_CN` | The one matching `PECRON_REGION` | Vendor app-level signing secret. See SETUP.md step 4 for where to find it. |
 | `CONTROL_TOKEN` | For control | Bearer token for `POST /api/control` (the `/control` page asks for it) and `POST /api/test-alert`. **Unset means all control is refused.** |
-| `INGEST_TOKEN` | Strongly recommended | Bearer token for `POST /api/ingest` and `POST /api/poll`. **Unset means those endpoints accept anyone**, so always set it. |
+| `INGEST_TOKEN` | For the LAN agent / manual polls | Bearer token for `POST /api/ingest` and `POST /api/poll`. Unset means those endpoints refuse everyone (fail closed). |
 | `MAILGUN_API_KEY` | For email alerts | Mailgun sending key. |
 | `MONITOR_TOKEN` | Optional | Password for the page gate (HTTP Basic; any username). Setting it enforces the gate even without `MONITOR_GATE`. |
 | `ALERT_WEBHOOK` | Optional | A Discord or Slack incoming-webhook URL (or any URL accepting plain text, such as ntfy) that receives the same alerts as email. Free relays such as ntfy.sh often rate-limit Cloudflare's shared addresses, so email is the more reliable channel. |

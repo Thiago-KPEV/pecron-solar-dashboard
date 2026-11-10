@@ -763,7 +763,10 @@ function tokenMatches(given, expected) {
 }
 
 function authorized(request, expected) {
-  if (!expected) return true;                    // unset = open, for local dev
+  // Fail closed: a missing token refuses exactly like a wrong one. "Unset means
+  // open" is convenient in local dev and dangerous in a public deploy, where
+  // forgetting one `wrangler secret put` would let anyone write samples.
+  if (!expected || !expected.trim()) return false;
   const h = request.headers.get("Authorization") || "";
   return tokenMatches(h.replace(/^Bearer\s+/i, "").trim(), expected.trim());
 }

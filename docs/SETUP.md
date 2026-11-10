@@ -137,9 +137,9 @@ npx wrangler secret put INGEST_TOKEN      # used by the LAN agent and POST /api/
 Write both down somewhere safe (a password manager). Cloudflare cannot show them to
 you again. `rotate-tokens.ps1` replaces lost ones.
 
-**Always set `INGEST_TOKEN`.** If it is unset, `/api/ingest` and `/api/poll` accept
-requests from anyone. (`CONTROL_TOKEN` is the opposite: unset means control is
-refused for everyone.)
+**Set `INGEST_TOKEN` if you use the LAN agent or `/api/poll`.** Every token fails
+closed: if it is unset, `/api/ingest` and `/api/poll` refuse everyone, and the same goes
+for `CONTROL_TOKEN` and control.
 
 ### MAILGUN_API_KEY (optional)
 

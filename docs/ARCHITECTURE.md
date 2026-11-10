@@ -94,9 +94,9 @@ bearer token: `Authorization: Bearer <token>`.
 | POST | `/api/test-alert` | `CONTROL_TOKEN` | Sends a test email and reports which settings are missing | none |
 | OPTIONS | any | none | CORS preflight | - |
 
-Unknown paths return 404 with a short list of endpoints. If `INGEST_TOKEN` is unset,
-`/api/ingest` and `/api/poll` are open; if `CONTROL_TOKEN` is unset, `/api/control` and
-`/api/test-alert` are closed.
+Unknown paths return 404 with a short list of endpoints. Every token fails closed: if
+`INGEST_TOKEN` is unset, `/api/ingest` and `/api/poll` refuse everyone; if `CONTROL_TOKEN` is
+unset, `/api/control` and `/api/test-alert` refuse everyone.
 
 ### Control safety
 
