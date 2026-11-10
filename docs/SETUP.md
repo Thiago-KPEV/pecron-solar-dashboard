@@ -7,6 +7,9 @@ Commands are shown as `npx wrangler ...`, which works without installing wrangle
 globally. They run the same on Windows (PowerShell), macOS and Linux unless noted.
 Run them from the project folder (the one containing `wrangler.toml`).
 
+Would you rather be walked through it? [INSTALL_WITH_AI.md](INSTALL_WITH_AI.md) has a
+prompt for Claude or another AI assistant to guide you through these same steps.
+
 ---
 
 ## 1. Accounts you need
@@ -416,5 +419,6 @@ and `localPolling.active: true` for about 20 minutes after each run.
 ## Next steps
 
 - [CONFIGURATION.md](CONFIGURATION.md) for every setting.
+- [INSTALL_WITH_AI.md](INSTALL_WITH_AI.md) to have an AI assistant guide a reinstall or a second unit.
 - [ARCHITECTURE.md](ARCHITECTURE.md) for how the pieces fit together.
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) when something looks wrong.

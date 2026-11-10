@@ -1,6 +1,8 @@
 # Live credentials - never commit.
 .dev.vars
 .dev.vars.*
+.env
+.env.*
 .tokens*.txt
 *.dpapi
 config.yaml

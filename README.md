@@ -74,11 +74,16 @@ Then open `https://pecron-solar-dashboard.<your-subdomain>.workers.dev/api/healt
 **New to Cloudflare? Follow [docs/SETUP.md](docs/SETUP.md)**, which goes step by step
 from zero, including where to find each value.
 
+**Prefer a guided install?** [docs/INSTALL_WITH_AI.md](docs/INSTALL_WITH_AI.md) has a
+prompt you can paste into Claude or another AI assistant. It walks you through setup
+interactively, without you ever pasting a password into the chat.
+
 ## Documentation
 
 | Doc | What it covers |
 |---|---|
 | [docs/SETUP.md](docs/SETUP.md) | Step-by-step install, alerts, custom domain, embedding, LAN agent |
+| [docs/INSTALL_WITH_AI.md](docs/INSTALL_WITH_AI.md) | A prompt and instructions for having an AI assistant guide the install |
 | [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | Every variable, secret and `site.config.js` field |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data flow, endpoints, database tables, alerting |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Frozen feeds, "No permission", re-pairing, vendor field quirks |
